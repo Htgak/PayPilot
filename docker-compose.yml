@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  # ----------------------------------------------------
+  # PayPilot FastAPI Backend Engine
+  # ----------------------------------------------------
+  paypilot-api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: paypilot-api
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - FRONTEND_URL=http://localhost:3000
+      - BACKEND_URL=http://localhost:8000
+      - DATABASE_URL=sqlite:////app/data/paypilot.db
+      - PAYPAL_BASE_URL=${PAYPAL_BASE_URL:-https://api-m.sandbox.paypal.com}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET:-}
+      - PAYPAL_WEBHOOK_ID=${PAYPAL_WEBHOOK_ID:-}
+      - AI_PROVIDER=${AI_PROVIDER:-gemini}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - AI_MODEL=${AI_MODEL:-gemini-1.5-flash}
+      - JWT_SECRET=${JWT_SECRET:-supersecret-paypilot-jwt-key-2026-hackathon}
+    volumes:
+      - paypilot-storage:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ----------------------------------------------------
+  # PayPilot Next.js Frontend Dashboard & Assistant
+  # ----------------------------------------------------
+  paypilot-web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: paypilot-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - INTERNAL_API_URL=http://paypilot-api:8000/api
+    depends_on:
+      paypilot-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  paypilot-storage:
+    driver: local

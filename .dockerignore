@@ -1,0 +1,36 @@
+# Version Control
+.git
+.gitignore
+
+# Dependencies
+**/node_modules
+**/.pnpm-store
+**/venv
+**/env
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Build outputs
+**/.next
+**/out
+**/build
+**/dist
+**/*.egg-info
+
+# Testing & Logs
+**/.pytest_cache
+**/*.log
+
+# Local database files (mounted via volumes)
+paypilot.db
+paypilot.db-wal
+paypilot.db-shm
+
+# IDE & OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db

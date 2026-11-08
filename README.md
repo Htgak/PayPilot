@@ -111,6 +111,10 @@ paypilot/
 │   ├── architecture.md          # Full architectural breakdown & diagrams
 │   ├── api.md                   # REST API specification
 │   └── demo-script.md           # 3-minute hackathon presentation script
+├── docker-compose.yml       # Multi-container orchestration
+├── docker-start.bat         # 1-click Windows Docker launcher
+├── docker-start.sh          # 1-click Linux/macOS Docker launcher
+├── .dockerignore
 ├── .env.example
 ├── LICENSE
 └── README.md
@@ -118,7 +122,34 @@ paypilot/
 
 ---
 
-## ⚡ Quickstart Guide
+## 🐳 Docker Quickstart (Recommended)
+
+Run the entire platform (Next.js frontend + FastAPI backend + SQLite/Postgres persistence) with a single command:
+
+```bash
+# Start all containers in background
+docker-compose up --build -d
+
+# Or use the convenience scripts:
+# Windows:
+.\docker-start.bat
+# Linux/macOS:
+./docker-start.sh
+```
+
+- **Web Dashboard:** `http://localhost:3000`
+- **FastAPI Docs:** `http://localhost:8000/docs`
+- **API Health:** `http://localhost:8000/health`
+
+To view live logs or tear down:
+```bash
+docker-compose logs -f
+docker-compose down
+```
+
+---
+
+## ⚡ Manual Quickstart Guide
 
 ### Prerequisites
 - **Node.js**: v18+ (tested on v24)

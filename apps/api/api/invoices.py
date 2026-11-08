@@ -243,6 +243,106 @@ async def send_invoice_reminder(
 
     return {"status": "SUCCESS", "message": "Reminder delivered", "details": res}
 
+@router.post("/{id}/generate-reminder")
+def generate_reminder_copy(
+    id: str,
+    tone: str = "professional",
+    db: Session = Depends(get_db)
+):
+    """
+    AI-assisted smart reminder copy generator with customizable tone
+    (friendly, professional, firm/urgent).
+    """
+    inv = db.query(InvoiceModel).filter_by(id=id, user_id="default_merchant").first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    client_name = inv.customer.name if inv.customer else "Valued Client"
+    due_str = inv.due_date.strftime("%B %d, %Y") if inv.due_date else "the scheduled date"
+    amount_str = f"${inv.amount:,.2f} {inv.currency}"
+
+    if tone == "friendly":
+        subject = f"Quick check-in regarding Invoice #{inv.invoice_number}"
+        note = (
+            f"Hi {client_name}, hope you're having a great week! Just a gentle reminder that invoice "
+            f"#{inv.invoice_number} for {amount_str} was due on {due_str}. "
+            f"You can settle it online whenever convenient. Let us know if you need any assistance!"
+        )
+    elif tone == "firm":
+        subject = f"URGENT: Outstanding Balance on Invoice #{inv.invoice_number}"
+        note = (
+            f"Dear {client_name}, our records indicate that invoice #{inv.invoice_number} ({amount_str}) "
+            f"is significantly overdue as of {due_str}. Please process this payment immediately to prevent "
+            f"any disruption to ongoing services or delivery milestones."
+        )
+    else: # professional
+        subject = f"Follow-up: Invoice #{inv.invoice_number} is awaiting payment"
+        note = (
+            f"Dear {client_name}, this is a courtesy follow-up regarding invoice #{inv.invoice_number} "
+            f"for {amount_str}, which was due on {due_str}. "
+            f"Please review the attached invoice details and remit payment via the PayPal link."
+        )
+
+    return {
+        "invoice_id": inv.id,
+        "invoice_number": inv.invoice_number,
+        "tone": tone,
+        "subject": subject,
+        "note": note
+    }
+
+@router.post("/{id}/pay")
+async def pay_invoice_online(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Customer portal checkout action: simulates buyer settling invoice online,
+    records the transaction capture, and flips invoice status to PAID.
+    """
+    inv = db.query(InvoiceModel).filter_by(id=id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    if inv.status == "PAID":
+        return {"status": "ALREADY_PAID", "message": "Invoice has already been settled"}
+
+    inv.status = "PAID"
+    capture_id = f"CAP-PORTAL-{uuid.uuid4().hex[:8].upper()}"
+
+    # Record payment transaction
+    tx = TransactionModel(
+        id=str(uuid.uuid4()),
+        user_id=inv.user_id,
+        invoice_id=inv.id,
+        paypal_capture_id=capture_id,
+        amount=inv.amount,
+        currency=inv.currency,
+        status="COMPLETED",
+        payment_source="paypal_customer_portal",
+        payer_name=inv.customer.name if inv.customer else "Customer",
+        payer_email=inv.customer.email if inv.customer else "customer@example.com"
+    )
+    db.add(tx)
+    db.commit()
+
+    record_audit(
+        db,
+        action="INVOICE_PAID_ONLINE",
+        entity_type="INVOICE",
+        entity_id=inv.id,
+        payload={"capture_id": capture_id, "amount": inv.amount},
+        result="SUCCESS"
+    )
+
+    return {
+        "status": "SUCCESS",
+        "invoice_status": "PAID",
+        "capture_id": capture_id,
+        "amount": inv.amount,
+        "currency": inv.currency
+    }
+
 @router.post("/{id}/cancel")
 async def cancel_invoice(id: str, db: Session = Depends(get_db)):
     """Cancels an invoice on PayPal."""

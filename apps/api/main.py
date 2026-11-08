@@ -14,6 +14,7 @@ from apps.api.api.approvals import router as approvals_router
 from apps.api.api.transactions import router as transactions_router
 from apps.api.api.webhooks import router as webhooks_router
 from apps.api.api.settings import router as settings_router
+from apps.api.api.audit import router as audit_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -74,6 +75,7 @@ app.include_router(approvals_router, prefix="/api")
 app.include_router(transactions_router, prefix="/api")
 app.include_router(webhooks_router, prefix="/api")
 app.include_router(settings_router, prefix="/api")
+app.include_router(audit_router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
