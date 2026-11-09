@@ -18,30 +18,30 @@ async def run_checks():
         print("Health check:", res.status_code, res.json())
         assert res.status_code == 200
 
-        # 2. Summary
+        # 2. Summary (clean initial state)
         res = await client.get("/api/dashboard/summary")
-        print("Summary:", res.status_code, res.json()["total_revenue"])
+        print("Summary initial revenue:", res.status_code, res.json()["total_revenue"])
         assert res.status_code == 200
 
-        # 3. Invoices
-        res = await client.get("/api/invoices")
-        invs = res.json()
-        print("Invoices count:", len(invs))
-        assert len(invs) > 0
-
-        # 4. AI Chat
+        # 3. AI Chat: User instructs AI to create an invoice
         res = await client.post("/api/agent/chat", json={
             "message": "Create an invoice for $650 for UX Design to Sarah Connor at sarah@cyberdyne.io"
         })
         chat_data = res.json()
-        print("AI Chat proposals:", len(chat_data.get("action_proposals", [])))
+        print("AI Chat proposals created:", len(chat_data.get("action_proposals", [])))
         assert len(chat_data.get("action_proposals", [])) > 0
         approval_id = chat_data["action_proposals"][0]["approval_id"]
 
-        # 5. Confirm approval
+        # 4. Confirm approval (human approval gate)
         approve_res = await client.post(f"/api/approvals/{approval_id}/confirm")
         print("Approval execution:", approve_res.status_code, approve_res.json()["status"])
         assert approve_res.json()["status"] == "EXECUTED"
+
+        # 5. Invoices check (now has real created invoice)
+        res = await client.get("/api/invoices")
+        invs = res.json()
+        print("Real Invoices count after creation:", len(invs))
+        assert len(invs) > 0
 
         # 6. Orders
         order_res = await client.post("/api/payments/orders", json={"amount": 250.0, "currency": "USD"})

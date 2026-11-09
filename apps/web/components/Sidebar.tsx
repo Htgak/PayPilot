@@ -10,11 +10,10 @@ import {
   ArrowLeftRight, 
   CreditCard, 
   Settings, 
-  CheckCircle2, 
-  ShieldAlert,
-  Sparkles,
-  ExternalLink
+  ShieldCheck,
+  Sparkles
 } from "lucide-react";
+import Badge from "./ui/Badge";
 
 interface SidebarProps {
   pendingCount?: number;
@@ -35,43 +34,45 @@ export default function Sidebar({ pendingCount = 0 }: SidebarProps) {
       href: "/assistant",
       icon: Bot,
       badge: "Active",
-      badgeColor: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30",
+      badgeVariant: "info" as const,
     },
     {
       label: "Invoices",
       href: "/invoices",
       icon: Receipt,
       badge: pendingCount > 0 ? `${pendingCount} req` : null,
-      badgeColor: "bg-amber-500/20 text-amber-400 border border-amber-500/40",
+      badgeVariant: "pending" as const,
     },
     {
       label: "Transactions",
       href: "/transactions",
       icon: ArrowLeftRight,
       badge: null,
+      badgeVariant: null,
     },
     {
       label: "Sandbox Checkout",
       href: "/checkout",
       icon: CreditCard,
-      badge: "Demo",
-      badgeColor: "bg-blue-500/10 text-blue-400 border border-blue-500/30",
+      badge: null,
+      badgeVariant: null,
     },
     {
-      label: "Settings & API",
+      label: "Settings",
       href: "/settings",
       icon: Settings,
       badge: null,
+      badgeVariant: null,
     },
   ];
 
   return (
-    <aside className="w-64 border-r border-[#1e2c47] bg-[#090e18] flex flex-col justify-between p-4 hidden md:flex shrink-0">
+    <aside className="w-60 border-r border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#090d16] flex flex-col justify-between p-4 hidden md:flex shrink-0 transition-colors">
       <div className="space-y-6">
-        {/* Navigation Section */}
+        {/* Navigation Items */}
         <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 px-3 mb-2">
-            Operations
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-3 mb-2 font-mono">
+            Platform
           </p>
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -80,47 +81,53 @@ export default function Sidebar({ pendingCount = 0 }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-gradient-to-r from-blue-600/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/30 shadow-glow-cyan"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/40"
+                    ? "bg-[#0070ba]/10 dark:bg-cyan-500/10 text-[#0070ba] dark:text-cyan-300 font-semibold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60"
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Icon className={`w-4 h-4 ${isActive ? "text-cyan-400" : "text-slate-400"}`} />
+                <div className="flex items-center space-x-2.5">
+                  <Icon
+                    className={`w-4 h-4 ${
+                      isActive
+                        ? "text-[#0070ba] dark:text-cyan-400"
+                        : "text-slate-400 dark:text-slate-500"
+                    }`}
+                  />
                   <span>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${item.badgeColor}`}>
+                {item.badge && item.badgeVariant && (
+                  <Badge variant={item.badgeVariant} dot={false} className="py-0 px-2 text-[10px]">
                     {item.badge}
-                  </span>
+                  </Badge>
                 )}
               </Link>
             );
           })}
         </div>
 
-        {/* Safety Gate Banner */}
-        <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs">
-          <div className="flex items-center space-x-2 text-cyan-400 font-semibold mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Human-in-the-Loop</span>
+        {/* Human-in-the-Loop Safe Box */}
+        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
+          <div className="flex items-center space-x-1.5 text-[#0070ba] dark:text-cyan-400 font-semibold mb-1">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="text-[11px]">Approval Safety Gate</span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
-            All AI-drafted invoices and payment requests require your explicit one-click confirmation before executing against the PayPal Sandbox API.
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            Financial actions require merchant review before executing PayPal Sandbox APIs.
           </p>
         </div>
       </div>
 
       {/* Footer Info */}
-      <div className="border-t border-slate-800/80 pt-4 space-y-2">
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
-          <span>PayPal API v2</span>
-          <span className="font-mono text-emerald-400">SANDBOX</span>
+      <div className="border-t border-slate-200/80 dark:border-slate-800 pt-3 text-[11px] text-slate-400 dark:text-slate-500 space-y-1 font-mono">
+        <div className="flex justify-between">
+          <span>PayPal REST v2</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">ONLINE</span>
         </div>
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
+        <div className="flex justify-between">
           <span>AI Engine</span>
-          <span className="font-mono text-cyan-400">Gemini Flash</span>
+          <span className="text-[#0070ba] dark:text-cyan-400">ACTIVE</span>
         </div>
       </div>
     </aside>

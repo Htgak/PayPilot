@@ -12,26 +12,27 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        monef: {
-          dark: "#080c14",
-          card: "#0f1626",
-          cardHover: "#141e33",
-          border: "#1e2c47",
-          subtle: "#94a3b8",
-          accent: "#0070ba", // PayPal Blue
-          cyan: "#00cfde",
-          emerald: "#10b981",
-          amber: "#f59e0b",
-          rose: "#f43f5e"
-        }
+        brand: {
+          50: "#f0f7ff",
+          100: "#e0effe",
+          200: "#bae0fd",
+          300: "#7cc8fb",
+          400: "#36acf7",
+          500: "#0070ba", // PayPal Blue
+          600: "#005ea6",
+          700: "#003087", // PayPal Navy
+          800: "#002b66",
+          900: "#001e47",
+        },
       },
       fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
       },
       boxShadow: {
-        'glow-cyan': '0 0 25px -5px rgba(0, 207, 222, 0.25)',
-        'glow-blue': '0 0 25px -5px rgba(0, 112, 186, 0.3)',
-      }
+        card: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)",
+        cardHover: "0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05)",
+        glow: "0 0 20px -3px rgba(0, 112, 186, 0.25)",
+      },
     },
   },
   plugins: [],

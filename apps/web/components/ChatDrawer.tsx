@@ -6,15 +6,13 @@ import {
   Send, 
   Sparkles, 
   Bot, 
-  User, 
   Loader2, 
-  ArrowRight,
   ShieldCheck,
-  Receipt,
-  HelpCircle
 } from "lucide-react";
-import { api, ChatMessage, ActionProposal } from "@/lib/api";
+import { api, ChatMessage } from "@/lib/api";
 import ApprovalCard from "./ApprovalCard";
+import Button from "./ui/Button";
+import Badge from "./ui/Badge";
 
 interface ChatDrawerProps {
   isOpen: boolean;
@@ -26,7 +24,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hello! I am PayPilot, your AI financial operations copilot. You can ask me to draft invoices, check your current revenue, track overdue accounts, or dispatch PayPal payment reminders.\n\nTry clicking one of the suggested requests below to see the approval-based workflow in action!",
+      content: "Hello! I am PayPilot, your AI financial operations copilot.\n\nAsk me to create invoices, check your current revenue, track overdue accounts, or dispatch PayPal payment reminders.\n\nClick a suggested instruction below to try an approval workflow!",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -77,7 +75,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
       console.error("Agent chat error:", err);
       const errMsg: ChatMessage = {
         role: "assistant",
-        content: "Sorry, I encountered an issue processing your financial instruction. Please ensure the backend is running.",
+        content: "Sorry, I encountered an issue communicating with the backend. Please ensure the backend is running.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, errMsg]);
@@ -87,28 +85,27 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end">
-      <div className="w-full max-w-lg bg-[#090e18] border-l border-[#1e2c47] flex flex-col h-full shadow-2xl animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm flex justify-end">
+      <div className="w-full max-w-lg bg-white dark:bg-[#090e18] border-l border-slate-200 dark:border-slate-800 flex flex-col h-full shadow-2xl animate-in slide-in-from-right duration-200">
         
         {/* Drawer Header */}
-        <div className="p-4 border-b border-[#1e2c47] flex items-center justify-between bg-[#0b121e]">
+        <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-[#0b121e]">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0070ba] to-[#00cfde] flex items-center justify-center text-white shadow-glow-cyan">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-slate-100 flex items-center space-x-1.5">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center space-x-1.5">
                 <span>PayPilot Copilot</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 font-mono border border-cyan-800">
-                  SANDBOX
-                </span>
+                <Badge variant="info" dot={false}>SANDBOX</Badge>
               </h3>
-              <p className="text-[11px] text-slate-400">Approval-Gated Financial Agent</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Approval-Gated Financial Agent</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -125,7 +122,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
               >
                 <div className="flex items-start space-x-2 max-w-[90%]">
                   {!isUser && (
-                    <div className="w-6 h-6 rounded-md bg-cyan-950 border border-cyan-700/50 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
                       <Bot className="w-3.5 h-3.5" />
                     </div>
                   )}
@@ -133,8 +130,8 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
                   <div
                     className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
                       isUser
-                        ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-tr-none"
-                        : "bg-[#0f1626] border border-[#1e2c47] text-slate-200 rounded-tl-none whitespace-pre-wrap"
+                        ? "bg-[#0070ba] text-white rounded-tr-none shadow-sm"
+                        : "bg-slate-100 dark:bg-[#0f1626] border border-slate-200 dark:border-[#1e2c47] text-slate-800 dark:text-slate-200 rounded-tl-none whitespace-pre-wrap"
                     }`}
                   >
                     {msg.content}
@@ -156,7 +153,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
                   </div>
                 </div>
                 {msg.timestamp && (
-                  <span className="text-[10px] text-slate-500 mt-1 px-1">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 px-1">
                     {msg.timestamp}
                   </span>
                 )}
@@ -165,18 +162,18 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
           })}
 
           {loading && (
-            <div className="flex items-center space-x-2 text-xs text-cyan-400 bg-cyan-950/30 p-2.5 rounded-xl border border-cyan-800/40 w-fit">
+            <div className="flex items-center space-x-2 text-xs text-[#0070ba] dark:text-cyan-400 bg-blue-50 dark:bg-cyan-950/30 p-2.5 rounded-xl border border-blue-200 dark:border-cyan-800/40 w-fit">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>Analyzing financial instruction and preparing tools...</span>
+              <span>Analyzing instruction and preparing financial tools...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Preset Prompt Suggestions */}
-        <div className="px-4 py-2 border-t border-[#1e2c47]/50 bg-[#070b12]">
-          <p className="text-[10px] font-semibold uppercase text-slate-500 mb-1.5 flex items-center space-x-1">
-            <Sparkles className="w-3 h-3 text-cyan-400" />
+        {/* Suggested Prompts */}
+        <div className="px-4 py-2 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-[#070b12]">
+          <p className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1.5 flex items-center space-x-1">
+            <Sparkles className="w-3 h-3 text-[#0070ba] dark:text-cyan-400" />
             <span>Suggested Workflows</span>
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -185,7 +182,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
                 key={i}
                 onClick={() => handleSendMessage(prompt)}
                 disabled={loading}
-                className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-cyan-500/40 transition-colors text-left"
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition-colors text-left"
               >
                 {prompt}
               </button>
@@ -194,7 +191,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 border-t border-[#1e2c47] bg-[#0b121e]">
+        <div className="p-3 border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0b121e]">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -208,19 +205,21 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="e.g. Create an invoice for $500 for web design to client@acme.com"
               disabled={loading}
-              className="flex-1 bg-slate-900/90 border border-[#1e2c47] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+              className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#0070ba] dark:focus:border-cyan-500"
             />
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="sm"
               disabled={loading || !inputValue.trim()}
-              className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white shadow-glow-cyan disabled:opacity-40 transition-all"
+              icon={<Send className="w-3.5 h-3.5" />}
             >
-              <Send className="w-4 h-4" />
-            </button>
+              Send
+            </Button>
           </form>
-          <div className="flex items-center justify-center space-x-1 text-[10px] text-slate-500 mt-2">
-            <ShieldCheck className="w-3 h-3 text-cyan-400" />
-            <span>Financial actions are prepared as proposals and require your explicit approval</span>
+          <div className="flex items-center justify-center space-x-1 text-[10px] text-slate-400 mt-2">
+            <ShieldCheck className="w-3 h-3 text-emerald-500" />
+            <span>Financial actions are prepared as proposals and require your approval</span>
           </div>
         </div>
       </div>

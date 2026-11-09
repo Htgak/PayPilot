@@ -2,22 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  Settings, 
   ShieldCheck, 
-  Key, 
-  Send, 
-  CheckCircle2, 
-  AlertCircle, 
-  RefreshCw, 
   Save, 
   ExternalLink,
   Bot,
-  Radio
+  Radio,
+  CheckCircle2,
+  RefreshCw,
+  Send
 } from "lucide-react";
 
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ChatDrawer from "@/components/ChatDrawer";
+import Button from "@/components/ui/Button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import Badge from "@/components/ui/Badge";
 import { api, SystemSettings } from "@/lib/api";
 
 export default function SettingsPage() {
@@ -90,7 +92,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#080c14]">
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#090d16] transition-colors">
       <Sidebar />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -99,203 +101,220 @@ export default function SettingsPage() {
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center space-x-2">
               <span>Settings & Integrations</span>
-              <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                Configuration
-              </span>
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Configure PayPal Developer Sandbox credentials, Gemini Flash API keys, and run test webhooks.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl">
-            {/* Left 2 Cols: Form */}
-            <div className="lg:col-span-2 glass-card p-6 rounded-2xl space-y-6">
-              <form onSubmit={handleSave} className="space-y-6 text-xs">
+            {/* Main Form (2 columns) */}
+            <div className="lg:col-span-2 space-y-6">
+              <form onSubmit={handleSave} className="space-y-6">
                 {/* PayPal Sandbox Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                    <h3 className="text-sm font-bold text-white flex items-center space-x-2">
-                      <ShieldCheck className="w-4 h-4 text-cyan-400" />
-                      <span>PayPal Sandbox Developer Credentials</span>
-                    </h3>
-                    <a
-                      href="https://developer.paypal.com/dashboard/applications/sandbox"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
-                    >
-                      <span>PayPal Developer Portal</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center">
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <CardTitle className="text-sm">PayPal Sandbox Credentials</CardTitle>
+                      </div>
+                      <a
+                        href="https://developer.paypal.com/dashboard/applications/sandbox"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1"
+                      >
+                        <span>Developer Portal</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <CardDescription>
+                      Required for live PayPal REST Invoicing v2 and Orders v2 operations
+                    </CardDescription>
+                  </CardHeader>
 
-                  <div>
-                    <label className="text-slate-400 block mb-1">Sandbox Client ID</label>
-                    <input
-                      type="text"
+                  <CardContent className="space-y-3.5">
+                    <Input
+                      label="Sandbox Client ID"
                       value={clientId}
                       onChange={(e) => setClientId(e.target.value)}
                       placeholder={settings?.paypal_client_id_masked || "Paste your PayPal Sandbox Client ID"}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-cyan-500"
+                      className="font-mono"
                     />
-                  </div>
 
-                  <div>
-                    <label className="text-slate-400 block mb-1">Sandbox Client Secret</label>
-                    <input
+                    <Input
+                      label="Sandbox Client Secret"
                       type="password"
                       value={clientSecret}
                       onChange={(e) => setClientSecret(e.target.value)}
                       placeholder="Paste your PayPal Sandbox Secret"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-cyan-500"
+                      className="font-mono"
                     />
-                  </div>
 
-                  <div>
-                    <label className="text-slate-400 block mb-1">Webhook ID (Optional)</label>
-                    <input
-                      type="text"
+                    <Input
+                      label="Webhook ID (Optional)"
                       value={webhookId}
                       onChange={(e) => setWebhookId(e.target.value)}
                       placeholder="e.g. 4JH392819827..."
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-cyan-500"
+                      className="font-mono"
                     />
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                {/* Gemini AI Section */}
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                    <h3 className="text-sm font-bold text-white flex items-center space-x-2">
-                      <Bot className="w-4 h-4 text-cyan-400" />
-                      <span>Google Gemini AI Engine</span>
-                    </h3>
-                    <span className="text-[10px] font-mono text-cyan-400">
-                      Model: {settings?.ai_model || "gemini-1.5-flash"}
-                    </span>
-                  </div>
+                {/* AI Configuration Section */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center">
+                          <Bot className="w-4 h-4" />
+                        </div>
+                        <CardTitle className="text-sm">Google Gemini AI Engine</CardTitle>
+                      </div>
+                      <Badge variant="info" dot={false}>
+                        Model: {settings?.ai_model || "gemini-1.5-flash"}
+                      </Badge>
+                    </div>
+                    <CardDescription>
+                      Powers natural-language understanding and tool selection
+                    </CardDescription>
+                  </CardHeader>
 
-                  <div>
-                    <label className="text-slate-400 block mb-1">Gemini API Key</label>
-                    <input
+                  <CardContent>
+                    <Input
+                      label="Gemini API Key"
                       type="password"
                       value={geminiKey}
                       onChange={(e) => setGeminiKey(e.target.value)}
-                      placeholder="Paste your GEMINI_API_KEY (optional, fallback heuristic agent active)"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-cyan-500"
+                      placeholder="Paste your GEMINI_API_KEY (optional, fallback engine active)"
+                      className="font-mono"
+                      helperText="If unset, PayPilot automatically uses its built-in rule-based intent parser."
                     />
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                {/* Merchant Profile */}
-                <div className="space-y-3 pt-2">
-                  <div className="pb-2 border-b border-slate-800">
-                    <h3 className="text-sm font-bold text-white">Merchant Business Profile</h3>
-                  </div>
+                {/* Merchant Business Profile */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Merchant Business Profile</CardTitle>
+                    <CardDescription>
+                      Appears on generated invoice drafts and branded PDFs
+                    </CardDescription>
+                  </CardHeader>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1">Business Name</label>
-                      <input
-                        type="text"
+                  <CardContent className="space-y-3.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Input
+                        label="Business Name"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white"
                       />
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1">Default Currency</label>
-                      <select
+                      <Select
+                        label="Default Currency"
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white"
                       >
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
                         <option value="INR">INR (₹)</option>
-                      </select>
+                      </Select>
                     </div>
-                  </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold shadow-glow-cyan flex items-center space-x-2 transition-all disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{saving ? "Saving..." : "Save Settings"}</span>
-                </button>
+                    <div className="pt-2">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="md"
+                        loading={saving}
+                        icon={<Save className="w-4 h-4" />}
+                      >
+                        {saving ? "Saving Changes..." : "Save Settings"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </form>
             </div>
 
-            {/* Right Column: Connection Status & Webhook Simulator */}
+            {/* Right Column: Diagnostics & Webhook Simulator */}
             <div className="space-y-6">
-              {/* Connection Status Card */}
-              <div className="glass-card p-5 rounded-2xl space-y-3 text-xs">
-                <h3 className="font-bold text-white text-sm">System Diagnostics</h3>
+              {/* System Diagnostics Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">System Diagnostics</CardTitle>
+                  <CardDescription>Active runtime environment and connection status</CardDescription>
+                </CardHeader>
 
-                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">PayPal REST API:</span>
-                    <span className="text-emerald-400 font-semibold flex items-center space-x-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{settings?.paypal_connected ? "Live Sandbox" : "Simulation Mode"}</span>
+                <CardContent className="space-y-2.5 text-xs font-mono">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                    <span className="text-slate-500 font-sans">PayPal REST:</span>
+                    <Badge variant={settings?.paypal_connected ? "paid" : "neutral"} dot={true}>
+                      {settings?.paypal_connected ? "Live Sandbox" : "Simulation Fallback"}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                    <span className="text-slate-500 font-sans">AI Reasoning:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {settings?.has_gemini ? "Gemini Flash" : "Heuristic NLP"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">AI Reasoning:</span>
-                    <span className="text-cyan-400 font-semibold">
-                      {settings?.has_gemini ? "Gemini Flash API" : "Heuristic FinOps"}
+
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                    <span className="text-slate-500 font-sans">Database:</span>
+                    <span className="text-slate-700 dark:text-slate-300 text-[11px]">
+                      {settings?.database_url.includes("sqlite") ? "SQLite (Local)" : "Supabase PostgreSQL"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Database:</span>
-                    <span className="text-slate-300 font-mono text-[11px]">
-                      {settings?.database_url.includes("sqlite") ? "SQLite (Zero-Config)" : "Supabase PostgreSQL"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Webhook Simulator Card */}
-              <div className="glass-card p-5 rounded-2xl space-y-3 text-xs">
-                <div className="flex items-center space-x-2">
-                  <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
-                  <h3 className="font-bold text-white text-sm">PayPal Webhook Simulator</h3>
-                </div>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Test the real-time event pipeline (`POST /api/webhooks/paypal`) by dispatching synthetic payment events.
-                </p>
-
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleSimulateWebhook("PAYMENT.CAPTURE.COMPLETED")}
-                    className="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-left font-mono text-[11px] border border-slate-700 flex items-center justify-between"
-                  >
-                    <span>PAYMENT.CAPTURE.COMPLETED</span>
-                    <Send className="w-3 h-3 text-cyan-400" />
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateWebhook("INVOICING.INVOICE.PAID")}
-                    className="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-left font-mono text-[11px] border border-slate-700 flex items-center justify-between"
-                  >
-                    <span>INVOICING.INVOICE.PAID</span>
-                    <Send className="w-3 h-3 text-emerald-400" />
-                  </button>
-                </div>
-
-                {webhookLog && (
-                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[10px] text-cyan-400">
-                    {webhookLog}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Radio className="w-4 h-4 text-[#0070ba] dark:text-cyan-400" />
+                    <CardTitle className="text-sm">Webhook Diagnostics</CardTitle>
                   </div>
-                )}
-              </div>
+                  <CardDescription>
+                    Test real-time event pipeline (`POST /api/webhooks/paypal`) with synthetic events
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-2.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-between"
+                    onClick={() => handleSimulateWebhook("PAYMENT.CAPTURE.COMPLETED")}
+                  >
+                    <span className="font-mono text-[11px]">PAYMENT.CAPTURE.COMPLETED</span>
+                    <Send className="w-3 h-3 text-[#0070ba] dark:text-cyan-400" />
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-between"
+                    onClick={() => handleSimulateWebhook("INVOICING.INVOICE.PAID")}
+                  >
+                    <span className="font-mono text-[11px]">INVOICING.INVOICE.PAID</span>
+                    <Send className="w-3 h-3 text-emerald-500" />
+                  </Button>
+
+                  {webhookLog && (
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-[10px] text-slate-700 dark:text-cyan-300">
+                      {webhookLog}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </main>

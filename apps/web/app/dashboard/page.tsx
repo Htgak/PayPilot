@@ -7,19 +7,15 @@ import {
   Clock, 
   CheckCircle2, 
   ShieldAlert, 
-  TrendingUp, 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  ArrowRight,
   Plus, 
   Sparkles, 
-  Receipt, 
   FileText, 
   ExternalLink,
-  Send,
-  Bell,
   RefreshCw,
-  AlertCircle
+  ArrowRight,
+  Receipt,
+  ArrowLeftRight,
+  CreditCard
 } from "lucide-react";
 import {
   AreaChart,
@@ -29,13 +25,17 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar
 } from "recharts";
 
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ChatDrawer from "@/components/ChatDrawer";
+import { useTheme } from "@/components/ui/ThemeProvider";
+import Button from "@/components/ui/Button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
+import StatCard from "@/components/ui/StatCard";
+import Badge, { BadgeVariant } from "@/components/ui/Badge";
+import EmptyState from "@/components/ui/EmptyState";
 import { api, DashboardSummary, DashboardCharts, InsightsData } from "@/lib/api";
 
 export default function DashboardPage() {
@@ -44,6 +44,7 @@ export default function DashboardPage() {
   const [insights, setInsights] = useState<InsightsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const { theme } = useTheme();
 
   const loadData = async () => {
     setLoading(true);
@@ -51,7 +52,7 @@ export default function DashboardPage() {
       const [sumData, chartData, insightData] = await Promise.all([
         api.getDashboardSummary(),
         api.getDashboardCharts(),
-        api.getInsights()
+        api.getInsights(),
       ]);
       setSummary(sumData);
       setCharts(chartData);
@@ -67,29 +68,31 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusVariant = (status: string): BadgeVariant => {
+    switch (status.toUpperCase()) {
       case "PAID":
       case "COMPLETED":
-        return "bg-emerald-950/70 text-emerald-400 border-emerald-800/80";
+        return "paid";
       case "SENT":
       case "PENDING":
-        return "bg-amber-950/70 text-amber-400 border-amber-800/80";
+        return "sent";
       case "OVERDUE":
-        return "bg-rose-950/70 text-rose-400 border-rose-800/80";
+        return "overdue";
       case "DRAFT":
-        return "bg-slate-800/70 text-slate-300 border-slate-700";
+        return "draft";
       default:
-        return "bg-slate-800 text-slate-400 border-slate-700";
+        return "neutral";
     }
   };
 
+  const isDark = theme === "dark";
+
   return (
-    <div className="flex h-screen overflow-hidden bg-[#080c14]">
-      {/* Sidebar Navigation */}
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#090d16] transition-colors">
+      {/* Sidebar */}
       <Sidebar pendingCount={summary?.pending_approvals_count || 0} />
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Navbar 
           onOpenChatDrawer={() => setIsChatOpen(true)}
@@ -97,368 +100,365 @@ export default function DashboardPage() {
         />
 
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Top Banner / Welcome & Quick Actions */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Top Bar: Title & Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
-                <span>Financial Operations</span>
-                <span className="text-xs font-normal px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">
-                  Monef Executive
-                </span>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center space-x-2">
+                <span>Financial Overview</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Real-time settled revenue, outstanding receivables, and AI approval-governed workflows.
               </p>
             </div>
 
-            <div className="flex items-center space-x-3">
+            {/* Streamlined Action Buttons - No Duplicate Clutter */}
+            <div className="flex items-center space-x-2.5">
               <button
                 onClick={loadData}
                 disabled={loading}
-                className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition-colors"
+                className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm"
                 title="Refresh metrics"
+                aria-label="Refresh metrics"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               </button>
 
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setIsChatOpen(true)}
-                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium text-xs shadow-glow-cyan transition-all"
+                icon={<Sparkles className="w-3.5 h-3.5 text-[#0070ba] dark:text-cyan-400" />}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Instruct AI Copilot</span>
-              </button>
+                <span>Instruct AI</span>
+              </Button>
 
-              <Link
-                href="/invoices"
-                className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>New Invoice</span>
+              <Link href="/invoices">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<Plus className="w-3.5 h-3.5" />}
+                >
+                  <span>New Invoice</span>
+                </Button>
               </Link>
             </div>
           </div>
 
           {/* 4 Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 1. Total Settled Revenue */}
-            <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-400">Total Settled Revenue</span>
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-3">
-                <h3 className="text-2xl font-bold tracking-tight text-white font-mono">
-                  ${summary ? summary.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "0.00"}
-                </h3>
-                <div className="flex items-center space-x-1 text-[11px] text-emerald-400 mt-1 font-medium">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>+{summary?.revenue_growth_pct || 18.4}% this month</span>
-                </div>
-              </div>
-              <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
-            </div>
+            <StatCard
+              title="Total Settled Revenue"
+              value={`$${summary ? summary.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "0.00"}`}
+              growthPct={summary?.revenue_growth_pct}
+              subtitle="All completed captures"
+              icon={<DollarSign className="w-4 h-4" />}
+              iconBg="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400"
+            />
 
-            {/* 2. Outstanding Receivables */}
-            <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-400">Outstanding Invoices</span>
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
-                  <Clock className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-3">
-                <h3 className="text-2xl font-bold tracking-tight text-white font-mono">
-                  ${summary ? summary.outstanding_invoices_amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "0.00"}
-                </h3>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Across {summary?.outstanding_invoices_count || 0} active invoices
-                </p>
-              </div>
-              <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
-            </div>
+            <StatCard
+              title="Outstanding Invoices"
+              value={`$${summary ? summary.outstanding_invoices_amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "0.00"}`}
+              subtitle={`${summary?.outstanding_invoices_count || 0} active invoice(s)`}
+              icon={<Clock className="w-4 h-4" />}
+              iconBg="bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400"
+            />
 
-            {/* 3. Completed Payments */}
-            <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-400">Completed Captures</span>
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-cyan-400 flex items-center justify-center border border-blue-500/20">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-3">
-                <h3 className="text-2xl font-bold tracking-tight text-white font-mono">
-                  {summary?.completed_payments_count || 0}
-                </h3>
-                <p className="text-[11px] text-cyan-400 mt-1 flex items-center space-x-1">
-                  <span>100% PayPal Verified</span>
-                </p>
-              </div>
-              <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
-            </div>
+            <StatCard
+              title="Completed Captures"
+              value={summary?.completed_payments_count || 0}
+              subtitle="Verified PayPal captures"
+              icon={<CheckCircle2 className="w-4 h-4" />}
+              iconBg="bg-blue-50 text-[#0070ba] dark:bg-blue-950/60 dark:text-cyan-400"
+            />
 
-            {/* 4. Action Approvals Queue */}
-            <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-400">Pending Approvals</span>
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
-                  <ShieldAlert className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-3">
-                <h3 className="text-2xl font-bold tracking-tight text-white font-mono">
-                  {summary?.pending_approvals_count || 0}
-                </h3>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  {summary?.pending_approvals_count === 0 
-                    ? "All actions executed" 
-                    : "Awaiting merchant sign-off"}
-                </p>
-              </div>
-              <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-purple-500/5 rounded-full blur-xl pointer-events-none" />
-            </div>
+            <StatCard
+              title="Pending Approvals"
+              value={summary?.pending_approvals_count || 0}
+              subtitle={summary?.pending_approvals_count === 0 ? "All actions confirmed" : "Requires merchant sign-off"}
+              icon={<ShieldAlert className="w-4 h-4" />}
+              iconBg="bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400"
+            />
           </div>
 
           {/* Charts & AI Insights Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Revenue & Invoicing Timeline (2 columns) */}
-            <div className="lg:col-span-2 glass-card p-5 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
+            {/* Timeline Chart (2 columns) */}
+            <Card className="lg:col-span-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
-                  <h3 className="text-sm font-bold text-white">Revenue Inflow vs Invoiced Volume</h3>
-                  <p className="text-xs text-slate-400">Track collections progress over 6-month timeline</p>
+                  <CardTitle>Cash Flow & Invoicing Timeline</CardTitle>
+                  <CardDescription>Real settled revenue vs invoiced receivables over 6 months</CardDescription>
                 </div>
                 <div className="flex items-center space-x-3 text-xs">
                   <div className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-                    <span className="text-slate-300">Revenue Settled</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#0070ba] dark:bg-cyan-400" />
+                    <span className="text-slate-600 dark:text-slate-400">Settled Revenue</span>
                   </div>
                   <div className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-                    <span className="text-slate-400">Invoiced Total</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                    <span className="text-slate-500 dark:text-slate-500">Invoiced Total</span>
                   </div>
                 </div>
-              </div>
+              </CardHeader>
 
-              <div className="h-64 w-full">
-                {charts && charts.revenue_timeline ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={charts.revenue_timeline} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#00cfde" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="#00cfde" stopOpacity={0.0} />
-                        </linearGradient>
-                        <linearGradient id="colorInv" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#0070ba" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#0070ba" stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e2c47" opacity={0.5} />
-                      <XAxis dataKey="period" stroke="#64748b" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `$${v}`} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "#0d1527",
-                          borderColor: "#1e2c47",
-                          borderRadius: "0.75rem",
-                          fontSize: "12px",
-                        }}
-                      />
-                      <Area type="monotone" dataKey="invoiced" stroke="#0070ba" strokeWidth={2} fillOpacity={1} fill="url(#colorInv)" />
-                      <Area type="monotone" dataKey="revenue" stroke="#00cfde" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-xs text-slate-500">
-                    Loading chart data...
-                  </div>
-                )}
-              </div>
-            </div>
+              <CardContent>
+                <div className="h-64 w-full">
+                  {charts && charts.revenue_timeline ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={charts.revenue_timeline}
+                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={isDark ? "#38bdf8" : "#0070ba"} stopOpacity={0.35} />
+                            <stop offset="95%" stopColor={isDark ? "#38bdf8" : "#0070ba"} stopOpacity={0.0} />
+                          </linearGradient>
+                          <linearGradient id="colorInv" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#94a3b8" stopOpacity={0.0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke={isDark ? "#1e293b" : "#e2e8f0"}
+                          opacity={0.8}
+                        />
+                        <XAxis
+                          dataKey="period"
+                          stroke={isDark ? "#64748b" : "#94a3b8"}
+                          fontSize={11}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          stroke={isDark ? "#64748b" : "#94a3b8"}
+                          fontSize={11}
+                          tickLine={false}
+                          tickFormatter={(v) => `$${v}`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: isDark ? "#0f172a" : "#ffffff",
+                            borderColor: isDark ? "#1e293b" : "#e2e8f0",
+                            borderRadius: "0.75rem",
+                            fontSize: "12px",
+                            color: isDark ? "#f8fafc" : "#0f172a",
+                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="invoiced"
+                          stroke={isDark ? "#64748b" : "#94a3b8"}
+                          strokeWidth={1.5}
+                          fillOpacity={1}
+                          fill="url(#colorInv)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="revenue"
+                          stroke={isDark ? "#38bdf8" : "#0070ba"}
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorRev)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-xs text-slate-400">
+                      Loading chart...
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* AI Insights & Financial Health (1 column) */}
-            <div className="glass-card p-5 rounded-2xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-3">
+            <Card className="flex flex-col justify-between">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-white">
-                      <Sparkles className="w-4 h-4" />
+                    <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center">
+                      <Sparkles className="w-3.5 h-3.5" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">AI Financial Insights</h3>
+                    <CardTitle className="text-sm">AI Financial Insights</CardTitle>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800">
-                    Score: {insights?.health_score || 85}/100
-                  </span>
+                  <Badge variant="info" dot={false}>
+                    Health: {insights?.health_score || 100}/100
+                  </Badge>
                 </div>
+                <CardDescription className="pt-1">
+                  {insights?.summary || "Analyzing real financial records..."}
+                </CardDescription>
+              </CardHeader>
 
-                <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  {insights?.summary || "Analyzing financial records..."}
-                </p>
-
-                {/* Insight Highlights */}
-                <div className="space-y-2.5">
-                  {insights?.insights?.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-slate-900/90 border border-slate-800/80 text-xs space-y-1"
-                    >
-                      <div className="flex items-center space-x-1.5 font-semibold text-slate-200">
-                        {item.type === "warning" && <span className="w-2 h-2 rounded-full bg-rose-500" />}
-                        {item.type === "success" && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
-                        {item.type === "info" && <span className="w-2 h-2 rounded-full bg-cyan-400" />}
-                        <span>{item.title}</span>
-                      </div>
-                      <p className="text-slate-400 text-[11px] leading-normal">{item.message}</p>
-                      {item.action_prompt && (
-                        <button
-                          onClick={() => {
-                            setIsChatOpen(true);
-                          }}
-                          className="mt-1 text-[10px] text-cyan-400 hover:text-cyan-300 flex items-center space-x-1 font-medium"
-                        >
-                          <span>Ask Copilot to resolve</span>
-                          <ArrowRight className="w-2.5 h-2.5" />
-                        </button>
-                      )}
+              <CardContent className="space-y-2.5 flex-1 pt-1">
+                {insights?.insights?.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 text-xs space-y-1"
+                  >
+                    <div className="flex items-center space-x-1.5 font-semibold text-slate-800 dark:text-slate-200">
+                      {item.type === "warning" && <span className="w-2 h-2 rounded-full bg-rose-500" />}
+                      {item.type === "success" && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
+                      {item.type === "info" && <span className="w-2 h-2 rounded-full bg-[#0070ba] dark:bg-cyan-400" />}
+                      <span>{item.title}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-                <span>Confidence Index: 92%</span>
-                <span className="text-cyan-400 cursor-pointer" onClick={() => setIsChatOpen(true)}>Ask detailed analysis</span>
-              </div>
-            </div>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-normal">{item.message}</p>
+                    {item.action_prompt && (
+                      <button
+                        onClick={() => setIsChatOpen(true)}
+                        className="mt-1 text-[11px] text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1 font-medium"
+                      >
+                        <span>Instruct Copilot</span>
+                        <ArrowRight className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Bottom Grid: Recent Invoices & Recent Transactions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Invoices Table */}
-            <div className="glass-card p-5 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
+            {/* Recent Invoices Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
-                  <h3 className="text-sm font-bold text-white">Recent Invoices</h3>
-                  <p className="text-xs text-slate-400">Directly synchronized with PayPal Invoicing v2</p>
+                  <CardTitle className="text-sm">Recent Invoices</CardTitle>
+                  <CardDescription>PayPal Invoicing v2 synchronized records</CardDescription>
                 </div>
                 <Link
                   href="/invoices"
-                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center space-x-1 font-medium"
+                  className="text-xs text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1 font-medium"
                 >
                   <span>View All</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
-              </div>
+              </CardHeader>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400">
-                      <th className="pb-2 font-medium">Invoice #</th>
-                      <th className="pb-2 font-medium">Client</th>
-                      <th className="pb-2 font-medium">Amount</th>
-                      <th className="pb-2 font-medium">Status</th>
-                      <th className="pb-2 font-medium text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
-                    {summary?.recent_invoices?.map((inv) => (
-                      <tr key={inv.id} className="hover:bg-slate-800/20 transition-colors">
-                        <td className="py-3 font-semibold text-slate-200">
-                          {inv.invoice_number}
-                        </td>
-                        <td className="py-3 font-sans text-slate-300">
-                          {inv.customer_name || "Client"}
-                        </td>
-                        <td className="py-3 text-slate-200 font-bold">
-                          ${inv.amount.toFixed(2)}
-                        </td>
-                        <td className="py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusBadge(inv.status)}`}>
-                            {inv.status}
-                          </span>
-                        </td>
-                        <td className="py-3 text-right space-x-2">
-                          <a
-                            href={api.getInvoicePdfUrl(inv.id)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 inline-block"
-                            title="Download PDF"
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                          </a>
-                          {inv.payment_url && (
-                            <a
-                              href={inv.payment_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-400 inline-block"
-                              title="View in PayPal Sandbox"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+              <CardContent className="pt-0">
+                {summary?.recent_invoices && summary.recent_invoices.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500">
+                          <th className="pb-2 font-medium">Invoice #</th>
+                          <th className="pb-2 font-medium">Client</th>
+                          <th className="pb-2 font-medium">Amount</th>
+                          <th className="pb-2 font-medium">Status</th>
+                          <th className="pb-2 font-medium text-right">PDF</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                        {summary.recent_invoices.map((inv) => (
+                          <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="py-3 font-semibold text-slate-800 dark:text-slate-200">
+                              {inv.invoice_number}
+                            </td>
+                            <td className="py-3 font-sans text-slate-600 dark:text-slate-300">
+                              {inv.customer_name || "Client"}
+                            </td>
+                            <td className="py-3 text-slate-900 dark:text-slate-100 font-bold">
+                              ${inv.amount.toFixed(2)}
+                            </td>
+                            <td className="py-3">
+                              <Badge variant={getStatusVariant(inv.status)}>
+                                {inv.status}
+                              </Badge>
+                            </td>
+                            <td className="py-3 text-right">
+                              <a
+                                href={api.getInvoicePdfUrl(inv.id)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 inline-block transition-colors"
+                                title="Download PDF"
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={<Receipt className="w-6 h-6" />}
+                    title="No invoices created yet"
+                    description="Instruct the AI Copilot to prepare your first invoice, or create one manually."
+                    actionLabel="Create Invoice"
+                    onAction={() => setIsChatOpen(true)}
+                  />
+                )}
+              </CardContent>
+            </Card>
 
-            {/* Recent Transactions Table */}
-            <div className="glass-card p-5 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
+            {/* Recent Payments Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
-                  <h3 className="text-sm font-bold text-white">Recent Payments</h3>
-                  <p className="text-xs text-slate-400">Captured through Orders API & Webhooks</p>
+                  <CardTitle className="text-sm">Recent Payments</CardTitle>
+                  <CardDescription>Captured through Orders API and Webhooks</CardDescription>
                 </div>
                 <Link
                   href="/transactions"
-                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center space-x-1 font-medium"
+                  className="text-xs text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1 font-medium"
                 >
                   <span>View Ledger</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
-              </div>
+              </CardHeader>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400">
-                      <th className="pb-2 font-medium">Capture Ref</th>
-                      <th className="pb-2 font-medium">Payer</th>
-                      <th className="pb-2 font-medium">Amount</th>
-                      <th className="pb-2 font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
-                    {summary?.recent_transactions?.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-slate-800/20 transition-colors">
-                        <td className="py-3 text-slate-300 font-semibold">
-                          {tx.paypal_capture_id || "CAP-PENDING"}
-                        </td>
-                        <td className="py-3 font-sans text-slate-300">
-                          {tx.payer_name || tx.payer_email || "Customer"}
-                        </td>
-                        <td className="py-3 text-emerald-400 font-bold">
-                          +${tx.amount.toFixed(2)}
-                        </td>
-                        <td className="py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusBadge(tx.status)}`}>
-                            {tx.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+              <CardContent className="pt-0">
+                {summary?.recent_transactions && summary.recent_transactions.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500">
+                          <th className="pb-2 font-medium">Capture Ref</th>
+                          <th className="pb-2 font-medium">Payer</th>
+                          <th className="pb-2 font-medium">Amount</th>
+                          <th className="pb-2 font-medium text-right">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                        {summary.recent_transactions.map((tx) => (
+                          <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="py-3 text-slate-700 dark:text-slate-300 font-semibold">
+                              {tx.paypal_capture_id || "CAP-PENDING"}
+                            </td>
+                            <td className="py-3 font-sans text-slate-600 dark:text-slate-300">
+                              {tx.payer_name || tx.payer_email || "Customer"}
+                            </td>
+                            <td className="py-3 text-emerald-600 dark:text-emerald-400 font-bold">
+                              +${tx.amount.toFixed(2)} {tx.currency}
+                            </td>
+                            <td className="py-3 text-right">
+                              <Badge variant={getStatusVariant(tx.status)}>
+                                {tx.status}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={<ArrowLeftRight className="w-6 h-6" />}
+                    title="No settled payments yet"
+                    description="Payments captured via PayPal Checkout or Invoicing will automatically sync here."
+                    actionLabel="Try Sandbox Checkout"
+                    onAction={() => {
+                      window.location.href = "/checkout";
+                    }}
+                  />
+                )}
+              </CardContent>
+            </Card>
           </div>
         </main>
       </div>

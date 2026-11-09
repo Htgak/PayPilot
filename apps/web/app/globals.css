@@ -4,70 +4,72 @@
 
 @layer base {
   :root {
-    --background: #080c14;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  .dark {
+    --background: #090d16;
     --foreground: #f8fafc;
+    --card-bg: #0f172a;
+    --card-border: #1e293b;
+    --muted: #94a3b8;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
     overflow-x: hidden;
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar for Light & Dark */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080c14;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e2c47;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #2e436b;
+  background: #94a3b8;
 }
 
-/* Glassmorphism Card Style */
-.glass-card {
-  background: rgba(15, 22, 38, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(30, 44, 71, 0.8);
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
 
-.glass-card-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* Reusable Card styles */
+.ui-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
-.glass-card-hover:hover {
-  background: rgba(20, 30, 51, 0.9);
-  border-color: rgba(56, 189, 248, 0.3);
-  transform: translateY(-1px);
+.ui-card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
 }
 
-/* Glowing PayPal Accent */
-.glow-accent {
-  box-shadow: 0 0 20px -3px rgba(0, 112, 186, 0.35);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 20px -3px rgba(0, 207, 222, 0.3);
-}
-
-/* Subtle pulse animation */
-@keyframes subtle-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-.animate-subtle-pulse {
-  animation: subtle-pulse 3s infinite ease-in-out;
+.dark .ui-card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: #334155;
 }
