@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # AI Provider Configuration
     ai_provider: str = "gemini"
     gemini_api_key: Optional[str] = None
-    ai_model: str = "gemini-1.5-flash"
+    ai_model: str = "gemini-3.5-flash"
 
     # Database
     database_url: str = "sqlite:///./paypilot.db"

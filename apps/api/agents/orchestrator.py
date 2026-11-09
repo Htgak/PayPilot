@@ -318,31 +318,35 @@ class AgentOrchestrator:
         message: str,
         user_id: str
     ) -> tuple[str, List[Dict[str, Any]], List[Dict[str, Any]]]:
-        """Call Gemini Flash with system prompts and return response."""
-        import google.generativeai as genai
-        genai.configure(api_key=settings.gemini_api_key)
-        
-        # Get live context from database
-        summary = get_financial_summary(db, user_id=user_id)
-        system_instruction = (
-            f"You are PayPilot, an expert AI financial operations copilot for independent businesses. "
-            f"Current business stats: Settled Revenue=${summary['total_revenue']}, "
-            f"Outstanding=${summary['outstanding_amount']}, Overdue Count={summary['overdue_count']}. "
-            f"Always prioritize clear, professional responses. "
-            f"Never claim money was transferred or an invoice was finalized without the user confirming approval."
-        )
-        
-        model = genai.GenerativeModel(
-            model_name=settings.ai_model,
-            system_instruction=system_instruction
-        )
-        
-        # We also pass through the heuristic agent for proposal generation
+        """Call Gemini Flash via direct async REST or SDK and return response."""
         reply, proposals, calls = self._run_heuristic_agent(db, message, user_id)
         if not proposals:
-            res = model.generate_content(message)
-            if res.text:
-                reply = res.text
+            try:
+                import httpx
+                summary = get_financial_summary(db, user_id=user_id)
+                sys_prompt = (
+                    f"You are PayPilot, an expert AI financial operations copilot for independent businesses. "
+                    f"Current business stats: Settled Revenue=${summary['total_revenue']}, "
+                    f"Outstanding=${summary['outstanding_amount']}, Overdue Count={summary['overdue_count']}. "
+                    f"Always prioritize clear, professional responses. "
+                    f"Never claim money was transferred or an invoice was finalized without the user confirming approval."
+                )
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.ai_model}:generateContent?key={settings.gemini_api_key}"
+                payload = {
+                    "systemInstruction": {"parts": [{"text": sys_prompt}]},
+                    "contents": [{"parts": [{"text": message}]}]
+                }
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.post(url, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text")
+                            if text:
+                                reply = text.strip()
+            except Exception as ex:
+                print(f"[AgentOrchestrator] Gemini REST error: {ex}")
         return reply, proposals, calls
 
 agent_orchestrator = AgentOrchestrator()
