@@ -33,7 +33,7 @@ def init_db():
     from apps.api.db.models import (
         ProfileModel, CustomerModel, InvoiceModel, InvoiceItemModel,
         TransactionModel, ApprovalModel, WebhookEventModel, AuditLogModel,
-        AiSessionModel, AiMessageModel
+        AiSessionModel, AiMessageModel, AuthUserModel
     )
     Base.metadata.create_all(bind=engine)
     
@@ -50,4 +50,18 @@ def init_db():
                 currency="USD"
             )
             db.add(profile)
+            db.commit()
+
+        # Check if initial auth user exists; if not, initialize from environment configuration
+        existing_user = db.query(AuthUserModel).first()
+        if not existing_user and settings.default_user_email and settings.default_user_password:
+            from apps.api.api.auth import _password_hash
+            user = AuthUserModel(
+                id=str(uuid.uuid4()),
+                email=settings.default_user_email.strip().lower(),
+                password_hash=_password_hash(settings.default_user_password),
+                user_id="default_merchant",
+                created_at=datetime.now(timezone.utc)
+            )
+            db.add(user)
             db.commit()

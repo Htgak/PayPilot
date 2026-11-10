@@ -1,5 +1,5 @@
 import React from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { Info } from "lucide-react";
 import { Card } from "./Card";
 
 interface StatCardProps {
@@ -7,9 +7,8 @@ interface StatCardProps {
   value: string | number;
   subtitle?: string;
   growthPct?: number | null;
-  icon: React.ReactNode;
-  iconBg?: string;
-  badge?: React.ReactNode;
+  icon?: React.ReactNode;
+  infoTooltip?: string;
 }
 
 export default function StatCard({
@@ -18,50 +17,55 @@ export default function StatCard({
   subtitle,
   growthPct,
   icon,
-  iconBg = "bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-cyan-400",
-  badge,
+  infoTooltip = "Metric calculated from verified records",
 }: StatCardProps) {
+  const isPositive = growthPct !== undefined && growthPct !== null && growthPct >= 0;
+  const isNegative = growthPct !== undefined && growthPct !== null && growthPct < 0;
+
   return (
-    <Card className="p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
-      <div className="flex items-start justify-between">
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{title}</span>
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
-          {icon}
+    <Card className="p-6 rounded-2xl hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+      {/* Top Header Row */}
+      <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+        <div className="flex items-center space-x-2">
+          {icon && <span className="text-slate-400 dark:text-slate-400 w-4 h-4 flex items-center justify-center">{icon}</span>}
+          <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{title}</span>
         </div>
+        <button
+          type="button"
+          className="text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors"
+          title={infoTooltip}
+        >
+          <Info className="w-3.5 h-3.5" />
+        </button>
       </div>
 
-      <div className="mt-3">
-        <h4 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 font-mono">
+      {/* Main Metric Row */}
+      <div className="mt-4 flex items-baseline space-x-3">
+        <h4 className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-sans">
           {value}
         </h4>
 
-        <div className="flex items-center space-x-2 mt-1.5">
-          {growthPct !== undefined && growthPct !== null && (
-            <span
-              className={`inline-flex items-center text-[11px] font-semibold ${
-                growthPct >= 0
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-rose-600 dark:text-rose-400"
-              }`}
-            >
-              {growthPct >= 0 ? (
-                <TrendingUp className="w-3 h-3 mr-0.5" />
-              ) : (
-                <TrendingDown className="w-3 h-3 mr-0.5" />
-              )}
-              {growthPct > 0 ? `+${growthPct}%` : `${growthPct}%`}
-            </span>
-          )}
-
-          {subtitle && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
-              {subtitle}
-            </span>
-          )}
-
-          {badge && <div className="ml-auto">{badge}</div>}
-        </div>
+        {growthPct !== undefined && growthPct !== null && (
+          <span
+            className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-md ${
+              isPositive
+                ? "bg-[#E6F9F4] dark:bg-emerald-950/50 text-[#0D9488] dark:text-emerald-400"
+                : isNegative
+                ? "bg-[#FEE2E2] dark:bg-rose-950/50 text-[#E11D48] dark:text-rose-400"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            {Math.abs(growthPct)}% {isPositive ? "↗" : isNegative ? "↘" : "•"}
+          </span>
+        )}
       </div>
+
+      {/* Subtitle / Context */}
+      {subtitle && (
+        <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+          {subtitle}
+        </p>
+      )}
     </Card>
   );
 }

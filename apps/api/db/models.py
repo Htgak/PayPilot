@@ -25,6 +25,15 @@ class ProfileModel(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
+class AuthUserModel(Base):
+    __tablename__ = "auth_users"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String(254), unique=True, nullable=False, index=True)
+    password_hash = Column(String(256), nullable=False)
+    user_id = Column(String(100), nullable=False, default="default_merchant", index=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
 class CustomerModel(Base):
     __tablename__ = "customers"
 

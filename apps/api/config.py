@@ -25,7 +25,11 @@ class Settings(BaseSettings):
     supabase_anon_key: Optional[str] = None
 
     # Security
-    jwt_secret: str = "supersecret-paypilot-jwt-key-2026-hackathon"
+    jwt_secret: str = "development-only-change-this-secret-before-deploying"
+
+    # Default / Seed User Credentials (configured via .env)
+    default_user_email: Optional[str] = None
+    default_user_password: Optional[str] = None
 
     model_config = {
         "env_file": ".env",

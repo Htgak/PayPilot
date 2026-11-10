@@ -75,12 +75,12 @@ export default function ApprovalCard({ proposal, onExecuted, onRejected }: Appro
   };
 
   return (
-    <div className={`my-3 p-4 rounded-xl border transition-all text-left ${
+    <div className={`my-3 p-4 rounded-2xl border transition-all text-left ${
       isExecuted
         ? "bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40"
         : isRejected
         ? "bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-70"
-        : "bg-white dark:bg-[#131b2e] border-slate-200 dark:border-slate-700/80 shadow-sm"
+        : "bg-white dark:bg-[#111827] border-slate-200/80 dark:border-slate-800 shadow-card"
     }`}>
       {/* Top Header */}
       <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -120,7 +120,7 @@ export default function ApprovalCard({ proposal, onExecuted, onRejected }: Appro
           {proposal.details.amount !== undefined && (
             <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold">
               <span className="text-slate-400 font-sans font-normal">Amount:</span>
-              <span className="text-[#0070ba] dark:text-cyan-400">
+              <span className="text-[#5B50EB] dark:text-[#818CF8]">
                 ${Number(proposal.details.amount).toFixed(2)} {proposal.details.currency || "USD"}
               </span>
             </div>

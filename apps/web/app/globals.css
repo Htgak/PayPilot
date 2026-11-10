@@ -4,19 +4,21 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
-    --card-bg: #ffffff;
-    --card-border: #e2e8f0;
-    --muted: #64748b;
+    --background: #F8F9FC;
+    --foreground: #0F172A;
+    --card-bg: #FFFFFF;
+    --card-border: #EDF2F7;
+    --muted: #64748B;
+    --subtle-surface: #F1F3F9;
   }
 
   .dark {
-    --background: #090d16;
-    --foreground: #f8fafc;
-    --card-bg: #0f172a;
-    --card-border: #1e293b;
-    --muted: #94a3b8;
+    --background: #0B0F19;
+    --foreground: #F8FAFC;
+    --card-bg: #111827;
+    --card-border: #1F2937;
+    --muted: #94A3B8;
+    --subtle-surface: #1E293B;
   }
 
   body {
@@ -28,7 +30,7 @@
   }
 }
 
-/* Custom Scrollbar for Light & Dark */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -39,37 +41,26 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #1E293B;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
 
-/* Reusable Card styles */
+/* Clean reference Card style */
 .ui-card {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-}
-
-.ui-card-hover:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
-}
-
-.dark .ui-card-hover:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  border-color: #334155;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.03);
 }

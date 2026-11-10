@@ -24,7 +24,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hello! I am PayPilot, your AI financial operations copilot.\n\nAsk me to create invoices, check your current revenue, track overdue accounts, or dispatch PayPal payment reminders.\n\nClick a suggested instruction below to try an approval workflow!",
+      content: "Hi Alex,\nWelcome back! How can I help?\n\nI can help with invoices, payments, and your revenue.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -33,10 +33,10 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestedPrompts = [
-    "Create an invoice for $750 for Brand Identity to Sarah Connor at sarah@cyberdyne.io",
-    "Show my revenue this month",
-    "Which invoices are overdue? Prepare a reminder.",
-    "Show my recent transactions"
+    "Create an invoice",
+    "Check my revenue",
+    "Find overdue invoices",
+    "Recent transactions"
   ];
 
   useEffect(() => {
@@ -85,21 +85,20 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm flex justify-end">
-      <div className="w-full max-w-lg bg-white dark:bg-[#090e18] border-l border-slate-200 dark:border-slate-800 flex flex-col h-full shadow-2xl animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/20 dark:bg-black/60 backdrop-blur-[2px] flex justify-end">
+      <div className="m-3 w-full max-w-[390px] rounded-2xl bg-white dark:bg-[#090e18] border border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100%-24px)] shadow-2xl animate-in slide-in-from-right duration-200 overflow-hidden">
         
         {/* Drawer Header */}
-        <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-[#0b121e]">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-[#0b121e]">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center space-x-1.5">
-                <span>PayPilot Copilot</span>
-                <Badge variant="info" dot={false}>SANDBOX</Badge>
+                <span>PayPilot AI</span>
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Approval-Gated Financial Agent</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Your finance assistant</p>
             </div>
           </div>
           <button
@@ -112,7 +111,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
         </div>
 
         {/* Messages Scroll Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fcfcfd] dark:bg-[#090e18]">
           {messages.map((msg, index) => {
             const isUser = msg.role === "user";
             return (
@@ -120,7 +119,7 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
                 key={index}
                 className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
               >
-                <div className="flex items-start space-x-2 max-w-[90%]">
+          <div className="flex items-start space-x-2 max-w-[94%]">
                   {!isUser && (
                     <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
                       <Bot className="w-3.5 h-3.5" />
@@ -130,8 +129,8 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
                   <div
                     className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
                       isUser
-                        ? "bg-[#0070ba] text-white rounded-tr-none shadow-sm"
-                        : "bg-slate-100 dark:bg-[#0f1626] border border-slate-200 dark:border-[#1e2c47] text-slate-800 dark:text-slate-200 rounded-tl-none whitespace-pre-wrap"
+                        ? "bg-[#5146c7] text-white rounded-tr-none shadow-sm"
+                        : "bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-[#1e2c47] text-slate-800 dark:text-slate-200 rounded-tl-none whitespace-pre-wrap shadow-sm"
                     }`}
                   >
                     {msg.content}
@@ -174,15 +173,15 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
         <div className="px-4 py-2 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-[#070b12]">
           <p className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1.5 flex items-center space-x-1">
             <Sparkles className="w-3 h-3 text-[#0070ba] dark:text-cyan-400" />
-            <span>Suggested Workflows</span>
+            <span>Try asking</span>
           </p>
           <div className="flex flex-wrap gap-1.5">
             {suggestedPrompts.map((prompt, i) => (
               <button
                 key={i}
-                onClick={() => handleSendMessage(prompt)}
+                onClick={() => handleSendMessage(prompt === "Create an invoice" ? "Create an invoice" : prompt === "Check my revenue" ? "Show my revenue this month" : prompt === "Find overdue invoices" ? "Which invoices are overdue? Prepare a reminder." : "Show my recent transactions")}
                 disabled={loading}
-                className="text-[11px] px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition-colors text-left"
+                className="text-[11px] px-2.5 py-1.5 rounded-full bg-white dark:bg-slate-900 hover:bg-[#eeeafe] dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition-colors text-left"
               >
                 {prompt}
               </button>
@@ -203,9 +202,9 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="e.g. Create an invoice for $500 for web design to client@acme.com"
+              placeholder="Ask me anything..."
               disabled={loading}
-              className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#0070ba] dark:focus:border-cyan-500"
+              className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#5146c7] dark:focus:border-[#8178ed]"
             />
             <Button
               type="submit"

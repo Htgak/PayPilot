@@ -17,17 +17,24 @@ venv/
 .env.test.local
 .env.production.local
 
-# Build Outputs
+# Build & Tool Outputs
 .next/
 out/
 build/
 dist/
 *.egg-info/
+.pytest_cache/
+graphify-out/
 
 # Databases & local storage
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 paypilot.db
+
+# TypeScript
+*.tsbuildinfo
 
 # IDE & OS
 .vscode/

@@ -28,7 +28,7 @@ export default function Button({
   };
 
   const variantStyles = {
-    primary: "bg-[#0070ba] hover:bg-[#005ea6] text-white focus:ring-[#0070ba]/40 shadow-sm shadow-[#0070ba]/20 active:scale-[0.98]",
+    primary: "bg-[#5B50EB] hover:bg-[#4F46E5] text-white focus:ring-[#5B50EB]/40 shadow-sm shadow-[#5B50EB]/25 active:scale-[0.98]",
     secondary: "bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 focus:ring-slate-400 active:scale-[0.98]",
     outline: "border border-slate-300 dark:border-slate-700/80 bg-transparent hover:bg-slate-100/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-slate-400",
     ghost: "bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 focus:ring-slate-400",

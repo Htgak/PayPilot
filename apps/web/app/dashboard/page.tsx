@@ -3,37 +3,34 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
+  Calendar, 
   DollarSign, 
   Clock, 
   CheckCircle2, 
-  ShieldAlert, 
   Plus, 
   Sparkles, 
   FileText, 
-  ExternalLink,
   RefreshCw,
   ArrowRight,
   Receipt,
-  ArrowLeftRight,
-  CreditCard
+  CreditCard,
+  PieChart as PieChartIcon,
+  ShieldCheck
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ChatDrawer from "@/components/ChatDrawer";
-import { useTheme } from "@/components/ui/ThemeProvider";
-import Button from "@/components/ui/Button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import StatCard from "@/components/ui/StatCard";
+import CellColumnTrend from "@/components/ui/CellColumnTrend";
+import { Card } from "@/components/ui/Card";
 import Badge, { BadgeVariant } from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
 import { api, DashboardSummary, DashboardCharts, InsightsData } from "@/lib/api";
@@ -44,7 +41,6 @@ export default function DashboardPage() {
   const [insights, setInsights] = useState<InsightsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
-  const { theme } = useTheme();
 
   const loadData = async () => {
     setLoading(true);
@@ -68,6 +64,7 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
+
   const getStatusVariant = (status: string): BadgeVariant => {
     switch (status.toUpperCase()) {
       case "PAID":
@@ -85,379 +82,370 @@ export default function DashboardPage() {
     }
   };
 
-  const isDark = theme === "dark";
+  const totalRev = summary?.total_revenue ?? 0;
+  const outstandingAmt = summary?.outstanding_invoices_amount ?? 0;
+  const completedCount = summary?.completed_payments_count ?? 0;
+  const pendingApprovals = summary?.pending_approvals_count ?? 0;
+
+  // Donut chart distribution based on PayPal channels
+  const channelData = [
+    { name: "Invoicing v2", value: Math.max(outstandingAmt, 100), color: "#5B50EB" },
+    { name: "Orders Checkout", value: Math.max(totalRev, 50), color: "#00D2B4" },
+    { name: "Retainers / Direct", value: 50, color: "#7C72F2" },
+  ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#090d16] transition-colors">
+    <div className="flex h-screen overflow-hidden bg-[#f7f7f9] dark:bg-[#0B0F19] transition-colors">
       {/* Sidebar */}
-      <Sidebar pendingCount={summary?.pending_approvals_count || 0} />
+      <Sidebar pendingCount={pendingApprovals} />
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Navbar 
           onOpenChatDrawer={() => setIsChatOpen(true)}
-          pendingApprovalsCount={summary?.pending_approvals_count || 0}
+          pendingApprovalsCount={pendingApprovals}
         />
 
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Top Bar: Title & Actions */}
+        <main className="flex-1 overflow-y-auto p-5 lg:p-7 space-y-5">
+          {/* Dashboard Header Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center space-x-2">
-                <span>Financial Overview</span>
+              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Overview
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Real-time settled revenue, outstanding receivables, and AI approval-governed workflows.
+                Keep track of your PayPal payments and invoices in one place.
               </p>
             </div>
 
-            {/* Streamlined Action Buttons - No Duplicate Clutter */}
-            <div className="flex items-center space-x-2.5">
+            {/* Right Action Controls */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <button
+                type="button"
                 onClick={loadData}
                 disabled={loading}
-                className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm"
+                className="p-2 rounded-xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 title="Refresh metrics"
-                aria-label="Refresh metrics"
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               </button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsChatOpen(true)}
-                icon={<Sparkles className="w-3.5 h-3.5 text-[#0070ba] dark:text-cyan-400" />}
+              <button
+                type="button"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium"
               >
-                <span>Instruct AI</span>
-              </Button>
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <span>Last 30 days</span>
+              </button>
 
-              <Link href="/invoices">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon={<Plus className="w-3.5 h-3.5" />}
-                >
-                  <span>New Invoice</span>
-                </Button>
+              {/* Instruct AI Button */}
+              <button
+                type="button"
+                onClick={() => setIsChatOpen(true)}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#5B50EB]/10 dark:bg-[#5B50EB]/20 text-[#5B50EB] dark:text-[#818CF8] hover:bg-[#5B50EB]/20 font-semibold shadow-xs transition-all"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Ask AI</span>
+              </button>
+
+              {/* New Invoice Button */}
+              <Link
+                href="/invoices"
+                className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-[#5B50EB] hover:bg-[#4F46E5] text-white font-semibold shadow-sm shadow-[#5B50EB]/30 transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create invoice</span>
               </Link>
             </div>
           </div>
 
-          {/* 4 Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Top Row: 4 FinOps Stat Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard
-              title="Total Settled Revenue"
-              value={`$${summary ? summary.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "0.00"}`}
+              title="Total revenue"
+              value={`$${totalRev.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               growthPct={summary?.revenue_growth_pct}
-              subtitle="All completed captures"
-              icon={<DollarSign className="w-4 h-4" />}
-              iconBg="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400"
+              subtitle="Verified PayPal payments"
+              icon={<DollarSign className="w-4 h-4 text-[#00D2B4]" />}
             />
 
             <StatCard
-              title="Outstanding Invoices"
-              value={`$${summary ? summary.outstanding_invoices_amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "0.00"}`}
+              title="Outstanding"
+              value={`$${outstandingAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               subtitle={`${summary?.outstanding_invoices_count || 0} active invoice(s)`}
-              icon={<Clock className="w-4 h-4" />}
-              iconBg="bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400"
+              icon={<Clock className="w-4 h-4 text-[#5B50EB]" />}
             />
 
-            <StatCard
-              title="Completed Captures"
-              value={summary?.completed_payments_count || 0}
-              subtitle="Verified PayPal captures"
-              icon={<CheckCircle2 className="w-4 h-4" />}
-              iconBg="bg-blue-50 text-[#0070ba] dark:bg-blue-950/60 dark:text-cyan-400"
-            />
+            <StatCard title="Completed payments" value={completedCount} subtitle="Verified PayPal captures" icon={<CheckCircle2 className="w-4 h-4 text-[#00D2B4]" />} />
+            <StatCard title="Needs your review" value={pendingApprovals} subtitle={pendingApprovals ? "Actions waiting for approval" : "No actions waiting"} icon={<Sparkles className="w-4 h-4 text-[#5B50EB]" />} />
 
-            <StatCard
-              title="Pending Approvals"
-              value={summary?.pending_approvals_count || 0}
-              subtitle={summary?.pending_approvals_count === 0 ? "All actions confirmed" : "Requires merchant sign-off"}
-              icon={<ShieldAlert className="w-4 h-4" />}
-              iconBg="bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400"
-            />
           </div>
 
-          {/* Charts & AI Insights Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Timeline Chart (2 columns) */}
-            <Card className="lg:col-span-2">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div>
-                  <CardTitle>Cash Flow & Invoicing Timeline</CardTitle>
-                  <CardDescription>Real settled revenue vs invoiced receivables over 6 months</CardDescription>
-                </div>
-                <div className="flex items-center space-x-3 text-xs">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#0070ba] dark:bg-cyan-400" />
-                    <span className="text-slate-600 dark:text-slate-400">Settled Revenue</span>
-                  </div>
-                  <div className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-                    <span className="text-slate-500 dark:text-slate-500">Invoiced Total</span>
-                  </div>
-                </div>
-              </CardHeader>
+          {/* Revenue timeline */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2">
+              {charts ? <CellColumnTrend labels={charts.revenue_timeline.map((item) => item.period)} revenue={charts.revenue_timeline.map((item) => item.revenue)} invoiced={charts.revenue_timeline.map((item) => item.invoiced)} currency={summary?.currency || "USD"} /> : <Card className="flex h-80 items-center justify-center text-sm text-slate-400">Loading revenue activity…</Card>}
+            </div>
 
-              <CardContent>
-                <div className="h-64 w-full">
-                  {charts && charts.revenue_timeline ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart
-                        data={charts.revenue_timeline}
-                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                      >
-                        <defs>
-                          <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={isDark ? "#38bdf8" : "#0070ba"} stopOpacity={0.35} />
-                            <stop offset="95%" stopColor={isDark ? "#38bdf8" : "#0070ba"} stopOpacity={0.0} />
-                          </linearGradient>
-                          <linearGradient id="colorInv" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.25} />
-                            <stop offset="95%" stopColor="#94a3b8" stopOpacity={0.0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          stroke={isDark ? "#1e293b" : "#e2e8f0"}
-                          opacity={0.8}
-                        />
-                        <XAxis
-                          dataKey="period"
-                          stroke={isDark ? "#64748b" : "#94a3b8"}
-                          fontSize={11}
-                          tickLine={false}
-                        />
-                        <YAxis
-                          stroke={isDark ? "#64748b" : "#94a3b8"}
-                          fontSize={11}
-                          tickLine={false}
-                          tickFormatter={(v) => `$${v}`}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: isDark ? "#0f172a" : "#ffffff",
-                            borderColor: isDark ? "#1e293b" : "#e2e8f0",
-                            borderRadius: "0.75rem",
-                            fontSize: "12px",
-                            color: isDark ? "#f8fafc" : "#0f172a",
-                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                          }}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="invoiced"
-                          stroke={isDark ? "#64748b" : "#94a3b8"}
-                          strokeWidth={1.5}
-                          fillOpacity={1}
-                          fill="url(#colorInv)"
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="revenue"
-                          stroke={isDark ? "#38bdf8" : "#0070ba"}
-                          strokeWidth={2}
-                          fillOpacity={1}
-                          fill="url(#colorRev)"
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                      Loading chart...
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Insights & Financial Health (1 column) */}
-            <Card className="flex flex-col justify-between">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
+            {/* AI Financial Copilot Insights Card (1 col) */}
+            <Card className="p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-4">
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-[#5B50EB]/10 text-[#5B50EB] dark:text-[#818CF8] flex items-center justify-center">
                       <Sparkles className="w-3.5 h-3.5" />
                     </div>
-                    <CardTitle className="text-sm">AI Financial Insights</CardTitle>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                      AI FinOps Insights
+                    </span>
                   </div>
-                  <Badge variant="info" dot={false}>
-                    Health: {insights?.health_score || 100}/100
+
+                  <Badge variant="paid" dot={false}>
+                    {insights?.health_score || 100}/100 Health
                   </Badge>
                 </div>
-                <CardDescription className="pt-1">
-                  {insights?.summary || "Analyzing real financial records..."}
-                </CardDescription>
-              </CardHeader>
 
-              <CardContent className="space-y-2.5 flex-1 pt-1">
-                {insights?.insights?.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 text-xs space-y-1"
-                  >
-                    <div className="flex items-center space-x-1.5 font-semibold text-slate-800 dark:text-slate-200">
-                      {item.type === "warning" && <span className="w-2 h-2 rounded-full bg-rose-500" />}
-                      {item.type === "success" && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
-                      {item.type === "info" && <span className="w-2 h-2 rounded-full bg-[#0070ba] dark:bg-cyan-400" />}
-                      <span>{item.title}</span>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
+                  {insights?.summary || "AI Agent continuously monitors overdue accounts, cash flow, and approval gates."}
+                </p>
+
+                {/* Insight items */}
+                <div className="space-y-2.5">
+                  {insights?.insights?.slice(0, 3).map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 text-xs space-y-1"
+                    >
+                      <div className="flex items-center space-x-1.5 font-semibold text-slate-800 dark:text-slate-200">
+                        {item.type === "warning" && <span className="w-2 h-2 rounded-full bg-[#E11D48]" />}
+                        {item.type === "success" && <span className="w-2 h-2 rounded-full bg-[#00D2B4]" />}
+                        {item.type === "info" && <span className="w-2 h-2 rounded-full bg-[#5B50EB]" />}
+                        <span>{item.title}</span>
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-normal">{item.message}</p>
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-normal">{item.message}</p>
-                    {item.action_prompt && (
-                      <button
-                        onClick={() => setIsChatOpen(true)}
-                        className="mt-1 text-[11px] text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1 font-medium"
-                      >
-                        <span>Instruct Copilot</span>
-                        <ArrowRight className="w-2.5 h-2.5" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Trigger */}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80">
+                <button
+                  type="button"
+                  onClick={() => setIsChatOpen(true)}
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#5B50EB] hover:bg-[#4F46E5] text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-sm shadow-[#5B50EB]/25 transition-all"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Ask Copilot to Act</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </Card>
           </div>
 
-          {/* Bottom Grid: Recent Invoices & Recent Transactions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Invoices Card */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <div>
-                  <CardTitle className="text-sm">Recent Invoices</CardTitle>
-                  <CardDescription>PayPal Invoicing v2 synchronized records</CardDescription>
-                </div>
-                <Link
-                  href="/invoices"
-                  className="text-xs text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1 font-medium"
-                >
-                  <span>View All</span>
-                  <ExternalLink className="w-3 h-3" />
-                </Link>
-              </CardHeader>
+          {/* Bottom Row: Payment Channels Donut & Recent Financial Records Table */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Sales Channel Distribution Donut (1 col) */}
+            <Card className="p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-4">
+                  <div className="flex items-center space-x-2">
+                    <PieChartIcon className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Payment Channels
+                    </span>
+                  </div>
 
-              <CardContent className="pt-0">
-                {summary?.recent_invoices && summary.recent_invoices.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500">
-                          <th className="pb-2 font-medium">Invoice #</th>
-                          <th className="pb-2 font-medium">Client</th>
-                          <th className="pb-2 font-medium">Amount</th>
-                          <th className="pb-2 font-medium">Status</th>
-                          <th className="pb-2 font-medium text-right">PDF</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
-                        {summary.recent_invoices.map((inv) => (
+                  <span className="text-xs text-slate-400 font-medium">Live Mix</span>
+                </div>
+
+                {/* Top Metrics Indicators with colored bars */}
+                <div className="grid grid-cols-3 gap-2 pt-1 pb-3 text-xs border-b border-slate-100 dark:border-slate-800/80">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center space-x-1">
+                      <span className="w-1 h-3 rounded-full bg-[#5B50EB]"></span>
+                      <span className="text-slate-400 text-[10px]">Invoices</span>
+                    </div>
+                    <p className="font-bold text-slate-800 dark:text-slate-200">
+                      ${outstandingAmt > 0 ? outstandingAmt.toFixed(0) : "0"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <div className="flex items-center space-x-1">
+                      <span className="w-1 h-3 rounded-full bg-[#00D2B4]"></span>
+                      <span className="text-slate-400 text-[10px]">Checkout</span>
+                    </div>
+                    <p className="font-bold text-slate-800 dark:text-slate-200">
+                      ${totalRev > 0 ? totalRev.toFixed(0) : "0"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    <div className="flex items-center space-x-1">
+                      <span className="w-1 h-3 rounded-full bg-[#7C72F2]"></span>
+                      <span className="text-slate-400 text-[10px]">Retainers</span>
+                    </div>
+                    <p className="font-bold text-slate-800 dark:text-slate-200">$0</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Donut Chart */}
+              <div className="h-44 w-full flex items-center justify-center relative my-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={channelData}
+                      innerRadius={50}
+                      outerRadius={68}
+                      paddingAngle={4}
+                      dataKey="value"
+                    >
+                      {channelData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-[10px] text-slate-400 font-medium">Total Volume</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    ${(totalRev + outstandingAmt).toFixed(0)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 text-center text-xs text-slate-400 border-t border-slate-100 dark:border-slate-800/80">
+                <span>Integrated with PayPal Developer Platform</span>
+              </div>
+            </Card>
+
+            {/* Recent Financial Operations Table (2 cols) */}
+            <Card className="lg:col-span-2 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-4">
+                  <div className="flex items-center space-x-2">
+                    <CreditCard className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Recent Financial Operations
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-3 text-xs">
+                    <Link
+                      href="/invoices"
+                      className="font-semibold text-[#5B50EB] hover:underline"
+                    >
+                      All Invoices
+                    </Link>
+                    <Link
+                      href="/transactions"
+                      className="font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                    >
+                      All Transactions
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Clean Table with Real Invoices and Payments */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-slate-400 tracking-wider">
+                        <th className="pb-3">REF / INVOICE</th>
+                        <th className="pb-3">CLIENT / PAYER</th>
+                        <th className="pb-3">CHANNEL</th>
+                        <th className="pb-3">STATUS</th>
+                        <th className="pb-3 text-right">AMOUNT</th>
+                        <th className="pb-3 text-right">ACTION</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                      {summary?.recent_invoices && summary.recent_invoices.length > 0 ? (
+                        summary.recent_invoices.slice(0, 4).map((inv) => (
                           <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td className="py-3 font-semibold text-slate-800 dark:text-slate-200">
                               {inv.invoice_number}
                             </td>
                             <td className="py-3 font-sans text-slate-600 dark:text-slate-300">
-                              {inv.customer_name || "Client"}
+                              {inv.customer_name || "Valued Client"}
                             </td>
-                            <td className="py-3 text-slate-900 dark:text-slate-100 font-bold">
-                              ${inv.amount.toFixed(2)}
+                            <td className="py-3 font-sans text-slate-500 text-[11px]">
+                              PayPal Invoicing v2
                             </td>
-                            <td className="py-3">
+                            <td className="py-3 font-sans">
                               <Badge variant={getStatusVariant(inv.status)}>
                                 {inv.status}
                               </Badge>
+                            </td>
+                            <td className="py-3 text-right font-bold text-slate-900 dark:text-slate-100">
+                              ${inv.amount.toFixed(2)}
                             </td>
                             <td className="py-3 text-right">
                               <a
                                 href={api.getInvoicePdfUrl(inv.id)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 inline-block transition-colors"
+                                className="p-1 rounded-lg text-slate-400 hover:text-[#5B50EB] inline-block transition-colors"
                                 title="Download PDF"
                               >
                                 <FileText className="w-3.5 h-3.5" />
                               </a>
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<Receipt className="w-6 h-6" />}
-                    title="No invoices created yet"
-                    description="Instruct the AI Copilot to prepare your first invoice, or create one manually."
-                    actionLabel="Create Invoice"
-                    onAction={() => setIsChatOpen(true)}
-                  />
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Recent Payments Card */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <div>
-                  <CardTitle className="text-sm">Recent Payments</CardTitle>
-                  <CardDescription>Captured through Orders API and Webhooks</CardDescription>
-                </div>
-                <Link
-                  href="/transactions"
-                  className="text-xs text-[#0070ba] dark:text-cyan-400 hover:underline flex items-center space-x-1 font-medium"
-                >
-                  <span>View Ledger</span>
-                  <ExternalLink className="w-3 h-3" />
-                </Link>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                {summary?.recent_transactions && summary.recent_transactions.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500">
-                          <th className="pb-2 font-medium">Capture Ref</th>
-                          <th className="pb-2 font-medium">Payer</th>
-                          <th className="pb-2 font-medium">Amount</th>
-                          <th className="pb-2 font-medium text-right">Status</th>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center font-sans">
+                            <EmptyState
+                              icon={<Receipt className="w-6 h-6 text-[#5B50EB]" />}
+                              title="No active invoices yet"
+                              description="Instruct PayPilot AI Copilot: 'Create an invoice for $500 to client@acme.com'."
+                              actionLabel="Create First Invoice"
+                              onAction={() => setIsChatOpen(true)}
+                            />
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
-                        {summary.recent_transactions.map((tx) => (
-                          <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td className="py-3 text-slate-700 dark:text-slate-300 font-semibold">
-                              {tx.paypal_capture_id || "CAP-PENDING"}
-                            </td>
-                            <td className="py-3 font-sans text-slate-600 dark:text-slate-300">
-                              {tx.payer_name || tx.payer_email || "Customer"}
-                            </td>
-                            <td className="py-3 text-emerald-600 dark:text-emerald-400 font-bold">
-                              +${tx.amount.toFixed(2)} {tx.currency}
-                            </td>
-                            <td className="py-3 text-right">
-                              <Badge variant={getStatusVariant(tx.status)}>
-                                {tx.status}
-                              </Badge>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<ArrowLeftRight className="w-6 h-6" />}
-                    title="No settled payments yet"
-                    description="Payments captured via PayPal Checkout or Invoicing will automatically sync here."
-                    actionLabel="Try Sandbox Checkout"
-                    onAction={() => {
-                      window.location.href = "/checkout";
-                    }}
-                  />
-                )}
-              </CardContent>
+                      )}
+
+                      {/* Display recent captures if available */}
+                      {summary?.recent_transactions && summary.recent_transactions.slice(0, 2).map((tx) => (
+                        <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="py-3 font-semibold text-slate-700 dark:text-slate-300">
+                            {tx.paypal_capture_id || "CAP-CAPTURE"}
+                          </td>
+                          <td className="py-3 font-sans text-slate-600 dark:text-slate-300">
+                            {tx.payer_name || tx.payer_email || "Customer"}
+                          </td>
+                          <td className="py-3 font-sans text-slate-500 text-[11px]">
+                            PayPal Orders API
+                          </td>
+                          <td className="py-3 font-sans">
+                            <Badge variant={getStatusVariant(tx.status)}>
+                              {tx.status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-right font-bold text-[#00D2B4]">
+                            +${tx.amount.toFixed(2)}
+                          </td>
+                          <td className="py-3 text-right text-slate-400 font-sans text-[11px]">
+                            Direct
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                <span>Transactions synchronized via PayPal Webhooks & API</span>
+                <span className="font-semibold text-slate-600 dark:text-slate-300">
+                  {completedCount} Verified Captures
+                </span>
+              </div>
             </Card>
           </div>
         </main>

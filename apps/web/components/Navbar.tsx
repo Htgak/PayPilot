@@ -1,102 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { 
-  Sparkles, 
-  ShieldCheck, 
-  User
-} from "lucide-react";
-import { api, SystemSettings } from "@/lib/api";
+import { Search, Bell } from "lucide-react";
 import ThemeToggle from "./ui/ThemeToggle";
-import Button from "./ui/Button";
 
-interface NavbarProps {
-  onOpenChatDrawer?: () => void;
-  pendingApprovalsCount?: number;
-}
-
-export default function Navbar({ onOpenChatDrawer, pendingApprovalsCount = 0 }: NavbarProps) {
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
-
-  useEffect(() => {
-    api.getSettings()
-      .then(setSettings)
-      .catch((err) => console.error("Error loading navbar settings:", err));
-  }, []);
-
-  return (
-    <header className="h-16 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-[#090d16]/80 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between transition-colors">
-      {/* Brand & Identity */}
-      <div className="flex items-center space-x-3">
-        <Link href="/dashboard" className="flex items-center space-x-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-[#0070ba] text-white flex items-center justify-center font-bold text-sm tracking-wider shadow-sm shadow-[#0070ba]/20 group-hover:scale-105 transition-transform">
-            P
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white group-hover:text-[#0070ba] dark:group-hover:text-cyan-400 transition-colors">
-                PayPilot
-              </span>
-              <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 border border-blue-200 dark:border-blue-800/60 font-mono">
-                AI Copilot
-              </span>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {/* Middle status badges */}
-      <div className="hidden sm:flex items-center space-x-3 text-xs">
-        {/* PayPal Sandbox Status Badge */}
-        <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="font-medium text-[11px]">PayPal Sandbox Active</span>
-        </div>
-
-        {/* Safety Gate Indicator */}
-        <div className="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#0070ba] dark:text-cyan-400" />
-          <span>Approval-Governed</span>
-        </div>
-      </div>
-
-      {/* Right Actions: Theme Toggle, Ask Copilot, Profile */}
-      <div className="flex items-center space-x-2.5">
-        {/* Theme Toggle Button */}
-        <ThemeToggle />
-
-        {/* Ask Copilot Button */}
-        {onOpenChatDrawer && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onOpenChatDrawer}
-            icon={<Sparkles className="w-3.5 h-3.5 text-[#0070ba] dark:text-cyan-400" />}
-          >
-            <span>Ask AI Copilot</span>
-          </Button>
-        )}
-
-        {/* Merchant profile button */}
-        <Link
-          href="/settings"
-          className="flex items-center space-x-2 pl-2 pr-2.5 py-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
-          title="Settings & Merchant Profile"
-        >
-          <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xs font-semibold text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
-            {settings?.profile?.name ? settings.profile.name.charAt(0) : "M"}
-          </div>
-          <div className="hidden lg:block text-left">
-            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight">
-              {settings?.profile?.business_name || "PixelCraft Studio"}
-            </p>
-          </div>
-        </Link>
-      </div>
-    </header>
-  );
+export default function Navbar({ pendingApprovalsCount = 0 }: { onOpenChatDrawer?: () => void; pendingApprovalsCount?: number }) {
+  return <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white px-5 sm:px-7 dark:border-slate-800 dark:bg-[#0b0f19]">
+    <div className="relative w-full max-w-[360px]"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input aria-label="Search" type="search" placeholder="Search" className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-16 text-xs text-slate-800 outline-none placeholder:text-slate-400 focus:border-[#5146c7] focus:ring-2 focus:ring-[#5146c7]/10 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" /><kbd className="absolute right-2 top-1/2 -translate-y-1/2 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-400 dark:border-slate-700 dark:bg-slate-800">⌘ + F</kbd></div>
+    <div className="ml-4 flex shrink-0 items-center gap-2"><button type="button" aria-label="Notifications" className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"><Bell className="h-4 w-4" />{pendingApprovalsCount > 0 && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-rose-500" />}</button><ThemeToggle className="h-9 w-9 rounded-lg" /><Link href="/settings" aria-label="Open profile settings" className="ml-1 flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-50 dark:hover:bg-slate-800"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#d9d5ff] text-xs font-bold text-[#5146c7]">AM</span><span className="hidden leading-tight sm:block"><span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">Alex Morgan</span><span className="block text-[10px] text-slate-400">PixelCraft Studio</span></span></Link></div>
+  </header>;
 }

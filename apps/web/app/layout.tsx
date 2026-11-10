@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "PayPilot — AI Financial Operations Platform",
@@ -14,9 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 antialiased selection:bg-[#0070ba] selection:text-white transition-colors duration-200">
+      <body className="min-h-screen bg-slate-50 dark:bg-[#111827] text-slate-900 dark:text-slate-100 antialiased selection:bg-[#5146c7] selection:text-white transition-colors duration-200">
         <ThemeProvider>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

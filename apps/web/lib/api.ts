@@ -1,5 +1,8 @@
 // PayPilot API Client Library
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const AUTH_TOKEN_KEY = "paypilot-access-token";
+
+export interface AuthSession { access_token: string; token_type: "bearer"; email: string; }
 
 export interface Profile {
   id: string;
@@ -145,6 +148,7 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...(typeof window !== "undefined" && localStorage.getItem(AUTH_TOKEN_KEY) && !path.startsWith("/auth/") ? { Authorization: `Bearer ${localStorage.getItem(AUTH_TOKEN_KEY)}` } : {}),
       ...(options?.headers || {}),
     },
   });
@@ -158,6 +162,9 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  getAuthStatus: () => fetchJSON<{ account_exists: boolean }>("/auth/status"),
+  login: (email: string, password: string) => fetchJSON<AuthSession>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+  signup: (email: string, password: string) => fetchJSON<AuthSession>("/auth/signup", { method: "POST", body: JSON.stringify({ email, password }) }),
   // Dashboard & Insights
   getDashboardSummary: () => fetchJSON<DashboardSummary>("/dashboard/summary"),
   getDashboardCharts: () => fetchJSON<DashboardCharts>("/dashboard/charts"),
