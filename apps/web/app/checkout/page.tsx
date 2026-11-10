@@ -20,7 +20,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Badge from "@/components/ui/Badge";
-import { api } from "@/lib/api";
+import { api, Transaction } from "@/lib/api";
 
 export default function CheckoutPage() {
   const [amount, setAmount] = useState<number>(350.0);
@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const [currency, setCurrency] = useState<string>("USD");
   const [order, setOrder] = useState<{ order_id: string; approval_url: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [capturedTx, setCapturedTx] = useState<any>(null);
+  const [capturedTx, setCapturedTx] = useState<Transaction | null>(null);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   const handleCreateOrder = async () => {

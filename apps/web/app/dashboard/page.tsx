@@ -381,7 +381,7 @@ export default function DashboardPage() {
                               </Badge>
                             </td>
                             <td className="py-3 text-right font-bold text-slate-900 dark:text-slate-100">
-                              ${inv.amount.toFixed(2)}
+                              ${(inv.amount ?? 0).toFixed(2)}
                             </td>
                             <td className="py-3 text-right">
                               <a
@@ -428,7 +428,7 @@ export default function DashboardPage() {
                             </Badge>
                           </td>
                           <td className="py-3 text-right font-bold text-[#00D2B4]">
-                            +${tx.amount.toFixed(2)}
+                            +${(tx.amount ?? 0).toFixed(2)}
                           </td>
                           <td className="py-3 text-right text-slate-400 font-sans text-[11px]">
                             Direct

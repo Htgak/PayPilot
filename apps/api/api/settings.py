@@ -8,6 +8,18 @@ from apps.api.models.schemas import SystemSettingsResponse, SettingsUpdateReques
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
 
+def _mask_db_url(url: str) -> str:
+    if "@" in url:
+        try:
+            proto, rest = url.split("://", 1)
+            creds, host = rest.split("@", 1)
+            if ":" in creds:
+                user, _ = creds.split(":", 1)
+                return f"{proto}://{user}:***@{host}"
+        except Exception:
+            return "***"
+    return url
+
 @router.get("", response_model=SystemSettingsResponse)
 def get_settings(db: Session = Depends(get_db)):
     """Retrieve system, AI, and PayPal connection configuration."""
@@ -25,7 +37,7 @@ def get_settings(db: Session = Depends(get_db)):
         paypal_client_id_masked=masked_client_id,
         has_gemini=settings.has_real_gemini,
         ai_model=settings.ai_model,
-        database_url=settings.database_url,
+        database_url=_mask_db_url(settings.database_url),
         profile=ProfileResponse.model_validate(profile) if profile else None
     )
 

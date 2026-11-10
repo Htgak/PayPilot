@@ -207,7 +207,7 @@ class SystemSettingsResponse(BaseModel):
     has_gemini: bool
     ai_model: str
     database_url: str
-    profile: ProfileResponse
+    profile: Optional[ProfileResponse] = None
 
 class SettingsUpdateRequest(BaseModel):
     paypal_client_id: Optional[str] = None

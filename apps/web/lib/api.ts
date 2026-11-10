@@ -144,11 +144,12 @@ export interface SystemSettings {
 
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
+  const token = typeof window !== "undefined" ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
   const res = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(typeof window !== "undefined" && localStorage.getItem(AUTH_TOKEN_KEY) && !path.startsWith("/auth/") ? { Authorization: `Bearer ${localStorage.getItem(AUTH_TOKEN_KEY)}` } : {}),
+      ...(token && !path.startsWith("/auth/") ? { Authorization: `Bearer ${token}` } : {}),
       ...(options?.headers || {}),
     },
   });

@@ -85,7 +85,12 @@ export default function ChatDrawer({ isOpen, onClose, onRefreshDashboard }: Chat
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/20 dark:bg-black/60 backdrop-blur-[2px] flex justify-end">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 overflow-hidden bg-slate-900/20 dark:bg-black/60 backdrop-blur-[2px] flex justify-end"
+    >
       <div className="m-3 w-full max-w-[390px] rounded-2xl bg-white dark:bg-[#090e18] border border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100%-24px)] shadow-2xl animate-in slide-in-from-right duration-200 overflow-hidden">
         
         {/* Drawer Header */}

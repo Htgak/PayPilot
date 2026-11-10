@@ -7,7 +7,7 @@ import io
 import uuid
 
 from apps.api.db.database import get_db
-from apps.api.db.models import InvoiceModel, InvoiceItemModel, CustomerModel, ProfileModel
+from apps.api.db.models import InvoiceModel, InvoiceItemModel, CustomerModel, ProfileModel, TransactionModel
 from apps.api.models.schemas import (
     InvoiceResponse, InvoiceDetailResponse, InvoiceCreate, 
     InvoiceRemindRequest, InvoiceItemResponse, CustomerResponse

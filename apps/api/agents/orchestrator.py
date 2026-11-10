@@ -133,18 +133,18 @@ class AgentOrchestrator:
                 currency = "GBP"
 
             amount = 500.0
-            # Look for explicit currency symbol followed by amount e.g. $850, ₹15000
-            m1 = re.search(r'[\$₹€£]\s*([0-9]+(?:\.[0-9]{1,2})?)', message)
+            # Look for explicit currency symbol followed by amount e.g. $850, $1,500, ₹15000
+            m1 = re.search(r'[\$₹€£]\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)', message)
             if m1:
                 try:
-                    amount = float(m1.group(1))
+                    amount = float(m1.group(1).replace(",", ""))
                 except ValueError:
                     pass
             else:
-                m2 = re.search(r'\b([0-9]+(?:\.[0-9]{1,2})?)\s*(?:usd|inr|eur|gbp|dollars|rupees)?\b', msg_lower)
+                m2 = re.search(r'\b([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)\s*(?:usd|inr|eur|gbp|dollars|rupees)?\b', msg_lower)
                 if m2:
                     try:
-                        amount = float(m2.group(1))
+                        amount = float(m2.group(1).replace(",", ""))
                     except ValueError:
                         pass
 

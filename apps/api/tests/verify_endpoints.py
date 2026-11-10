@@ -18,6 +18,16 @@ async def run_checks():
         print("Health check:", res.status_code, res.json())
         assert res.status_code == 200
 
+        # Authenticate using default user credentials from env
+        from apps.api.config import settings
+        email = settings.default_user_email or "demouser@gmail.com"
+        password = settings.default_user_password or "demouser123"
+        login_res = await client.post("/api/auth/login", json={"email": email, "password": password})
+        if login_res.status_code == 200:
+            token = login_res.json()["access_token"]
+            client.headers["Authorization"] = f"Bearer {token}"
+            print(f"Authenticated as {email}!")
+
         # 2. Summary (clean initial state)
         res = await client.get("/api/dashboard/summary")
         print("Summary initial revenue:", res.status_code, res.json()["total_revenue"])

@@ -125,7 +125,7 @@ export default function AssistantPage() {
                     key={index}
                     className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                   >
-                    <div className={`flex items-start space-x-3 max-w-[min(720px,90%)] ${isUser ? "flex-row-reverse" : ""}`}>
+                    <div className={`flex items-start gap-3 max-w-[min(720px,90%)] ${isUser ? "flex-row-reverse" : ""}`}>
                       {!isUser && (
                         <div className="w-7 h-7 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0070ba] dark:text-cyan-400 border border-blue-200 dark:border-blue-800/60 flex items-center justify-center shrink-0 mt-0.5">
                           <Sparkles className="w-3.5 h-3.5" />

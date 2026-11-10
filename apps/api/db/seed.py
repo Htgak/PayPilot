@@ -117,7 +117,7 @@ def seed_local_db():
                 created_at=utc_now()
             )
             db.add(user)
-            print(f"[+] Created local auth user: {DEMO_EMAIL} (password: {DEMO_PASSWORD})")
+            print(f"[+] Created local auth user: {DEMO_EMAIL}")
 
         # 2. Seed or update Profile
         profile = db.query(ProfileModel).filter_by(user_id=TENANT_ID).first()
@@ -428,7 +428,7 @@ def main():
     print("=" * 60)
     print("  PayPilot AI - Database Seeding & User Setup")
     print(f"  User:     {DEMO_EMAIL}")
-    print(f"  Password: {DEMO_PASSWORD}")
+    print("  Password: [loaded from .env]")
     print("=" * 60)
 
     # 1. Local Database
@@ -441,7 +441,7 @@ def main():
     print("  SEEDING COMPLETE!")
     print(f"  Login at http://localhost:3000/login")
     print(f"  Email:    {DEMO_EMAIL}")
-    print(f"  Password: {DEMO_PASSWORD}")
+    print("  Password: [loaded from .env]")
     print("=" * 60)
 
 if __name__ == "__main__":

@@ -91,7 +91,7 @@ export default function InvoicesPage() {
     setItems(items.filter((_, idx) => idx !== index));
   };
 
-  const handleItemChange = (index: number, field: keyof InvoiceItem, value: any) => {
+  const handleItemChange = (index: number, field: keyof InvoiceItem, value: string | number) => {
     const next = [...items];
     next[index] = { ...next[index], [field]: value };
     setItems(next);
