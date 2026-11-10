@@ -51,16 +51,15 @@ start "PayPilot - Web UI (Port 3000)" cmd /k "cd /d "%~dp0apps\web" && pnpm dev"
 
 echo.
 echo ============================================================
-echo   PayPilot services are running in separate windows:
+echo   PayPilot (Hackathon Demo Mode) is running!
 echo.
 echo   - Web Dashboard: http://localhost:3000
-echo   - Sign In Page:  http://localhost:3000/login
+echo   - AI Assistant:  http://localhost:3000/assistant
+echo   - Invoices:      http://localhost:3000/invoices
 echo   - API Docs:      http://localhost:8000/docs
 echo   - Health Check:  http://localhost:8000/health
 echo.
-echo   Default Login Credentials (from .env):
-echo     Email:    !DEFAULT_USER_EMAIL!
-echo     Password: !DEFAULT_USER_PASSWORD!
+echo   [OK] Demo Mode Active: Instant direct access with .env credentials!
 echo ============================================================
 echo Press any key to stop all background node and python servers...
 pause >nul

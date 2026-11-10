@@ -1,6 +1,7 @@
 "use client";
 
 import React, { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { Eye, EyeOff, LockKeyhole, Mail, Zap } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
@@ -42,7 +43,12 @@ export default function LoginPage() {
           {error && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
           <button type="submit" disabled={busy || !ready} className="flex h-11 w-full items-center justify-center rounded-lg bg-[#5146c7] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#4338ad] disabled:cursor-not-allowed disabled:opacity-60">{busy ? "Please wait…" : isFirstSetup ? "Create workspace account" : "Sign in"}</button>
         </form>}
-        <p className="mt-5 text-center text-[11px] text-slate-400">Your account protects access to this PayPilot workspace.</p>
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+          <Link href="/dashboard" className="inline-flex items-center text-xs font-semibold text-[#5146c7] hover:underline dark:text-indigo-400">
+            ⚡ Quick Demo Access (Skip Login) →
+          </Link>
+        </div>
+        <p className="mt-4 text-center text-[11px] text-slate-400">Preconfigured for PayPal AI Hackathon Demo Mode.</p>
       </section>
     </div>
   </main>;

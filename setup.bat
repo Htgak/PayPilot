@@ -57,11 +57,9 @@ echo.
 echo ============================================================
 echo   Setup completed successfully!
 echo.
-echo   To launch PayPilot, run:
+echo   To launch PayPilot in Demo Mode, run:
 echo     start.bat
 echo.
-echo   Default Login Credentials (from .env):
-echo     Email:    !DEFAULT_USER_EMAIL!
-echo     Password: !DEFAULT_USER_PASSWORD!
+echo   [OK] Demo Mode Active: Instant direct access with .env credentials!
 echo ============================================================
 pause

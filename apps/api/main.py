@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Request
-from fastapi.responses import JSONResponse
 from apps.api.config import settings
 from apps.api.db.database import init_db
 
@@ -17,7 +15,7 @@ from apps.api.api.transactions import router as transactions_router
 from apps.api.api.webhooks import router as webhooks_router
 from apps.api.api.settings import router as settings_router
 from apps.api.api.audit import router as audit_router
-from apps.api.api.auth import router as auth_router, verify_access_token
+from apps.api.api.auth import router as auth_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -51,16 +49,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.middleware("http")
-async def require_authenticated_api(request: Request, call_next):
-    path = request.url.path
-    public_paths = {"/api/auth/login", "/api/auth/signup", "/api/auth/status", "/api/health"}
-    if path.startswith("/api/") and path not in public_paths and not path.startswith("/api/webhooks/paypal"):
-        authorization = request.headers.get("Authorization", "")
-        if not authorization.startswith("Bearer ") or not verify_access_token(authorization[7:]):
-            return JSONResponse(status_code=401, content={"detail": "Please sign in to continue."})
-    return await call_next(request)
 
 # Health & Root endpoints
 @app.get("/")
