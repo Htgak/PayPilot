@@ -7,7 +7,7 @@ services:
   paypilot-api:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: ./apps/api/Dockerfile
     container_name: paypilot-api
     ports:
       - "8000:8000"
@@ -40,7 +40,7 @@ services:
   paypilot-web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: ./apps/web/Dockerfile
     container_name: paypilot-web
     ports:
       - "3000:3000"
